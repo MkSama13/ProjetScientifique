@@ -1,0 +1,118 @@
+{% extends "core/base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Connexion" %}{% endblock %}
+
+{% block content %}
+<div class="flex flex-col md:flex-row items-center justify-center min-h-[80vh] w-full">
+    <div class="md:w-1/2 w-full flex flex-col items-center justify-center px-4 md:px-10 mb-8 md:mb-0">
+        <h1 class="text-3xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-br from-blue-400 via-purple-400 to-pink-400 mb-4 leading-tight drop-shadow-lg text-center animate-fade-in">
+            Connectez-vous pour échanger scientifiquement avec vos camarades
+        </h1>
+        <p class="text-gray-300 text-base md:text-lg font-medium mt-2 text-center animate-fade-in delay-200">
+            Connectez-vous à votre espace personnel pour publier, intéragir, et évoluer dans vos projets scientifiques avec d'autres étudiants engagés.
+        </p>
+    </div>
+    <div class="md:w-1/2 w-full flex justify-center">
+        <div class="max-w-md w-full mx-auto mt-20 p-8 rounded-xl shadow-2xl bg-transparent transition-transform duration-300 animate-drop-in hover:scale-110 focus-within:scale-110" style="transform-origin: center;">
+            <h2 class="text-3xl font-bold mb-6 text-center text-white animate-fade-in delay-600">Connexion</h2>
+            <form method="post" action="{% url 'account_login' %}" x-data="{ username: '', pwd: '' }">
+                {% csrf_token %}
+                {% for field in form %}
+                    {% if field.name == 'login' %}
+                    <div class="mb-4">
+                        <label for="{{ field.id_for_label }}" class="block text-gray-300 text-sm font-bold mb-2">{{ field.label }}</label>
+                        <input type="text" name="login" id="{{ field.id_for_label }}"
+                            class="bg-[#22272e] border border-[#30363d] text-white sm:text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 uppercase bg-transparent"
+                            placeholder="Ex: KATALAY LUBOYA HENOCK"
+                            x-model="username"
+                            @input="username = $event.target.value.toUpperCase()"
+                            required>
+                        <span id="login-error"></span>
+                        {% if field.errors %}
+                            {% for error in field.errors %}
+                                {% if "n'existe pas" in error or "does not exist" in error or "aucun compte" in error %}
+                                    <p class="text-red-500 text-xs italic">Ce nom d'utilisateur ne correspont à aucun compte existant</p>
+                                {% else %}
+                                    <p class="text-red-500 text-xs italic">{{ error }}</p>
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    {% elif field.name == 'password' %}
+                    <div class="mb-4" x-data="{ show: false }">
+                        <label for="{{ field.id_for_label }}" class="block text-gray-300 text-sm font-bold mb-2">{{ field.label }}</label>
+                        <div class="relative">
+                            <input :type="show ? 'text' : 'password'" name="{{ field.name }}" id="{{ field.id_for_label }}"
+                                class="bg-[#22272e] border border-[#303d3d] text-white sm:text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 pr-10 bg-transparent"
+                                x-model="$parent.pwd"
+                                @focus="show = show" @blur="show = show" required>
+                            <template x-if="$parent.pwd">
+                                <button type="button" @click="show = !show" tabindex="-1"
+                                    class="absolute inset-y-0 right-0 flex items-center px-2 text-gray-400 hover:text-blue-400 focus:outline-none">
+                                    <template x-if="!show">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                        </svg>
+                                    </template>
+                                    <template x-if="show">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.477 0-8.268-2.943-9.542-7a9.956 9.956 0 012.223-3.592m3.31-2.252A9.956 9.956 0 0112 5c4.477 0 8.268 2.943 9.542 7a9.973 9.973 0 01-4.293 5.411M15 12a3 3 0 11-6 0 3 3 0 016 0zm-6.364 6.364L19.778 4.222" />
+                                        </svg>
+                                    </template>
+                                </button>
+                            </template>
+                        </div>
+                        {% for error in field.errors %}
+                            <p class="text-red-500 text-xs italic">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                {% endfor %}
+                <div class="flex items-center justify-between flex-col gap-4 mt-6">
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full">
+                        {% trans "Se connecter" %}
+                    </button>
+                    <div class="text-center w-full">
+                        <span class="text-gray-400 text-sm italic">Si vous n'avez pas déjà un compte, inscrivez-vous :</span>
+                    </div>
+                    <a href="{% url 'account_signup' %}" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full transition duration-200 text-center block">
+                        S'inscrire
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+(function() {
+  const fadeEls = document.querySelectorAll('.animate-fade-in');
+  fadeEls.forEach((el, i) => {
+    el.style.opacity = 0;
+    setTimeout(() => {
+      el.style.transition = 'opacity 1s';
+      el.style.opacity = 1;
+    }, 200 + (i * 200));
+  });
+  const dropBloc = document.querySelector('.animate-drop-in');
+  if (dropBloc) {
+    dropBloc.style.opacity = 0;
+    dropBloc.style.transform = 'translateY(-80px) scale(0.9)';
+    setTimeout(() => {
+      dropBloc.style.transition = 'opacity 0.8s, transform 0.8s cubic-bezier(0.23, 1, 0.32, 1)';
+      dropBloc.style.opacity = 1;
+      dropBloc.style.transform = 'translateY(0) scale(1)';
+    }, 100);
+  }
+})();
+</script>
+{% endblock %}
+
+{% block navbar %}
+<nav class="fixed w-full z-10 top-0 bg-transparent" style="background: transparent;">
+    <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+        <a href="{% url 'home' %}" class="text-lg font-semibold text-white hover:text-blue-400 ml-6 transition duration-200 hover:scale-110 active:scale-105">Accueil</a>
+    </div>
+</nav>
+{% endblock %}

@@ -1,0 +1,49 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Accueil{% endblock %}</title>
+    <!-- Chargement de la bibliothèque CSS DaisyUI -->
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@2.51.5/dist/full.css" rel="stylesheet" type="text/css" />
+    <!-- Chargement de Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chargement d'Alpine.js pour les interactions frontend -->
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <!-- Chargement de htmx pour les interactions frontend -->
+    <script src="https://unpkg.com/htmx.org@1.9.2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body, html, input, button, textarea, select {
+            font-family: 'Inter', 'Segoe UI', 'Arial', sans-serif !important;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-gray-900 to-blue-900 min-h-screen font-sans text-white flex flex-col">
+    {% block navbar %}
+    <nav class="fixed w-full z-10 top-0 bg-transparent" style="background: transparent;">
+        <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+            <a href="{% url 'home' %}" class="text-lg font-semibold text-white hover:text-blue-400 transition duration-200 hover:scale-110 active:scale-105">Accueil</a>
+            <div class="flex items-center gap-6">
+                {% block navbar_right %}{% endblock %}
+                {% if user.is_authenticated %}
+                <form method="post" action="{% url 'account_logout' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-error bg-red-600 hover:bg-red-700 text-white rounded-lg shadow transition duration-200">
+                        Déconnexion
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+    {% endblock %}
+    <div class="container mx-auto p-4 flex-grow pt-16">
+        <!-- Bloc de contenu principal à remplacer dans les templates enfants -->
+        {% block content %}{% endblock %}
+    </div>
+<footer class="bg-transparent text-center text-white py-4 mt-auto w-full">
+    Institut Superieur Pedagogique et Technique de Likasi
+</footer>
+</body>
+</html>

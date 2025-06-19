@@ -1,0 +1,84 @@
+{% extends 'core/base.html' %}
+
+{% block navbar %}
+<nav class="sticky w-full z-30 top-0 bg-transparent" style="background: transparent;">
+    <div class="container mx-auto px-4 py-3 flex justify-end items-center">
+        <a href="#a-propos" class="text-lg font-semibold text-white hover:text-blue-400 ml-6 transition duration-200 hover:scale-110 active:scale-105">A propos</a>
+    </div>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="flex flex-col justify-center items-center min-h-[90vh] w-full">
+    <h1 class="text-6xl font-extrabold mb-6 text-white text-center animate-fade-in">Bienvenue sur la plateforme d'échange <br> scientifique de l'ISPT/Likasi</h1>
+    <h1 class="text-3xl font-extrabold mb-6 text-white text-center animate-fade-in delay-200">Partageons la science, construisons l'avenir</h1>
+    <p class="text-2xl mb-6 text-gray-300 text-center animate-fade-in delay-400">Découvrez une plateforme dédiée aux échanges scientifiques entre étudiants de l'ISPTISPT/Likasi<br>Publiez vos idées, commentez, apprenez des autres et faites rayonner votre savoir</p>
+    <div class="flex gap-4 animate-fade-in delay-600">
+        <a href="{% url 'account_login' %}" class="bg-gray-700 text-white py-3 px-8 rounded-full font-bold text-lg hover:bg-blue-800 transition duration-300 ease-in-out transform hover:scale-110 focus:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-lg">Connexion</a>
+        <a href="{% url 'account_signup' %}" class="bg-gray-700 text-white py-3 px-8 rounded-full font-bold text-lg hover:bg-green-600 transition duration-300 ease-in-out transform hover:scale-110 focus:scale-105 focus:outline-none focus:ring-2 focus:ring-green-400 shadow-lg">Inscription</a>
+    </div>
+    <button id="scroll-down" class="mt-10 animate-bounce bg-blue-700 hover:bg-blue-800 text-white rounded-full p-3 shadow-lg transition-transform duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400" title="Voir la section A propos">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+    </button>
+</div>
+<!-- Section A propos élargie -->
+<section id="a-propos" class="w-full mx-auto p-8 mt-8 text-white flex flex-col items-center transition-transform duration-300 bg-transparent" x-data="{ scale: false }" :class="scale ? 'scale-105' : ''" @a-propos-scale.window="scale = true; setTimeout(() => scale = false, 700)">
+    <h3 class="text-3xl font-extrabold mb-4 text-white text-center w-full sticky top-0 z-20 bg-transparent">À propos de la plateforme</h3>
+    <p class="text-lg mb-2 text-center w-full">Cette plateforme pédagogique vise à encourager le partage, la discussion et la valorisation des idées scientifiques entre étudiants de l'ISPT/Likasi.</p>
+    <p class="text-lg mb-2 text-center w-full">Rejoignez-nous pour faire grandir la communauté scientifique de l'ISPT/Likasi de demain !</p>
+    <ul class="list-disc list-inside text-white mb-2 w-full max-w-4xl mx-auto">
+        <li>Publiez vos questions scientifiques ou préoccupations.</li>
+        <li>Commentez et répondez aux publications de vos camarades.</li>
+        <li>Développez votre réseau et vos compétences en communication scientifique.</li>
+        <li>Soyez informer des nouvelles de l'administration sous forme de communiqué.</li>
+    </ul>
+</section>
+<script>
+// Animation fade-in
+(function() {
+  const fadeEls = document.querySelectorAll('.animate-fade-in');
+  fadeEls.forEach((el, i) => {
+    el.style.opacity = 0;
+    setTimeout(() => {
+      el.style.transition = 'opacity 1s';
+      el.style.opacity = 1;
+    }, 200 + (i * 200));
+  });
+})();
+// Scroll vers la section A propos
+const scrollBtn = document.getElementById('scroll-down');
+function handleScrollBtnVisibility() {
+  if (!scrollBtn) return;
+  const scrollY = window.scrollY || window.pageYOffset;
+  const windowH = window.innerHeight;
+  const docH = document.documentElement.scrollHeight;
+  // Si on est proche du bas (50px du bas)
+  if (scrollY + windowH >= docH - 50) {
+    scrollBtn.style.display = 'none';
+  } else {
+    scrollBtn.style.display = '';
+  }
+}
+window.addEventListener('scroll', handleScrollBtnVisibility);
+window.addEventListener('resize', handleScrollBtnVisibility);
+document.addEventListener('DOMContentLoaded', handleScrollBtnVisibility);
+if(scrollBtn) {
+  scrollBtn.addEventListener('click', function() {
+    document.getElementById('a-propos').scrollIntoView({ behavior: 'smooth' });
+    setTimeout(function() {
+      window.dispatchEvent(new CustomEvent('a-propos-scale'));
+    }, 400);
+  });
+}
+document.addEventListener('DOMContentLoaded', function() {
+  const aproposLink = document.querySelector('a[href="#a-propos"]');
+  if(aproposLink) {
+    aproposLink.addEventListener('click', function(e) {
+      setTimeout(function() {
+        window.dispatchEvent(new CustomEvent('a-propos-scale'));
+      }, 300);
+    });
+  }
+});
+</script>
+{% endblock %}

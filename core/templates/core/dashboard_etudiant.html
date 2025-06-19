@@ -1,0 +1,109 @@
+{% extends 'core/base.html' %}
+{% load static %}
+{% block navbar %}
+<nav class="fixed w-full z-10 top-0 bg-transparent" style="background: transparent;">
+    <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+        <a href="{% url 'home' %}" class="text-lg font-semibold text-white hover:text-blue-400 transition duration-200 hover:scale-110 active:scale-105">Accueil</a>
+        <div class="flex items-center gap-6">
+            {% block navbar_right %}{% endblock %}
+            <form method="post" action="{% url 'account_logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-error bg-red-600 hover:bg-red-700 text-white rounded-lg shadow transition duration-200">
+                    Déconnexion
+                </button>
+            </form>
+            <input type="text" placeholder="🔍 Recherche par tag"
+                   class="input input-sm input-bordered rounded-xl bg-[#161b22] text-white border-[#30363d] w-64 mt-1">
+        </div>
+    </div>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 pt-24 fade-in">
+    <div class="flex flex-col lg:flex-row gap-8">
+        <!-- Sidebar -->
+        <aside class="w-full lg:w-72 min-h-[500px] bg-transparent border border-transparent rounded-2xl shadow-none p-6 flex flex-col gap-6 sticky top-28 mb-8 lg:mb-0">
+            <span class="text-white font-bold text-lg mb-2 flex items-center gap-2"><svg xmlns='http://www.w3.org/2000/svg' class='h-5 w-5 text-blue-400' fill='none' viewBox='0 0 24 24' stroke='currentColor'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M12 4v16m8-8H4'/></svg>Menu étudiant</span>
+            <nav class="flex flex-col gap-2">
+                <a class="flex items-center gap-2 px-3 py-2 rounded-lg text-white font-semibold transition cursor-pointer transform hover:scale-105 active:scale-95"><svg xmlns='http://www.w3.org/2000/svg' class='h-4 w-4 text-green-400' fill='none' viewBox='0 0 24 24' stroke='currentColor'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 11H5m7-7v14'/></svg>Nouvelle publication</a>
+                <a class="flex items-center gap-2 px-3 py-2 rounded-lg text-white font-semibold transition cursor-pointer transform hover:scale-105 active:scale-95"><svg xmlns='http://www.w3.org/2000/svg' class='h-4 w-4 text-yellow-400' fill='none' viewBox='0 0 24 24' stroke='currentColor'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M8 17l4 4 4-4m0-5V3m-8 8v6a2 2 0 002 2h8a2 2 0 002-2v-6'/></svg>Mes publications</a>
+                <a class="flex items-center gap-2 px-3 py-2 rounded-lg text-white font-semibold transition cursor-pointer transform hover:scale-105 active:scale-95"><svg xmlns='http://www.w3.org/2000/svg' class='h-4 w-4 text-pink-400' fill='none' viewBox='0 0 24 24' stroke='currentColor'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V4a2 2 0 10-4 0v1.341C7.67 7.165 6 9.388 6 12v2.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9'/></svg>Notifications</a>
+                <a class="flex items-center gap-2 px-3 py-2 rounded-lg text-white font-semibold transition cursor-pointer transform hover:scale-105 active:scale-95"><svg xmlns='http://www.w3.org/2000/svg' class='h-4 w-4 text-blue-300' fill='none' viewBox='0 0 24 24' stroke='currentColor'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87M16 3.13a4 4 0 010 7.75M8 3.13a4 4 0 010 7.75'/></svg>Communauté</a>
+            </nav>
+            <div class="mt-8 bg-transparent rounded-xl p-4">
+                <span class="text-gray-400 text-xs uppercase tracking-widest">Raccourcis</span>
+                <ul class="mt-2 flex flex-col gap-2">
+                    <li><a href="#" class="text-blue-400 hover:underline text-sm">Publier un article</a></li>
+                    <li><a href="#" class="text-blue-400 hover:underline text-sm">Consulter les discussions</a></li>
+                    <li><a href="#" class="text-blue-400 hover:underline text-sm">Voir les ressources</a></li>
+                </ul>
+            </div>
+        </aside>
+        <!-- Main content -->
+        <main class="flex-1">
+            <h2 class="text-4xl font-bold text-white text-center mb-10 mt-4 drop-in">Tableau de bord étudiant</h2>
+            <!-- Tuiles statistiques -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+                <div class="bg-transparent rounded-2xl p-6 flex flex-col items-center shadow-none hover:scale-105 transition group">
+                    <div class="bg-blue-500/20 rounded-full p-3 mb-3"><svg xmlns='http://www.w3.org/2000/svg' class='h-8 w-8 text-blue-400' fill='none' viewBox='0 0 24 24' stroke='currentColor'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M12 8c-1.657 0-3 1.343-3 3s1.343 3 3 3 3-1.343 3-3-1.343-3-3-3zm0 10c-4.418 0-8-1.79-8-4V7c0-2.21 3.582-4 8-4s8 1.79 8 4v7c0 2.21-3.582 4-8 4z'/></svg></div>
+                    <span class="text-white text-lg font-semibold">0</span>
+                    <span class="text-gray-400 text-sm">Publications</span>
+                </div>
+                <div class="bg-transparent rounded-2xl p-6 flex flex-col items-center shadow-none hover:scale-105 transition group">
+                    <div class="bg-green-500/20 rounded-full p-3 mb-3"><svg xmlns='http://www.w3.org/2000/svg' class='h-8 w-8 text-green-400' fill='none' viewBox='0 0 24 24' stroke='currentColor'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87M16 3.13a4 4 0 010 7.75M8 3.13a4 4 0 010 7.75'/></svg></div>
+                    <span class="text-white text-lg font-semibold">0</span>
+                    <span class="text-gray-400 text-sm">Discussions</span>
+                </div>
+                <div class="bg-transparent rounded-2xl p-6 flex flex-col items-center shadow-none hover:scale-105 transition group">
+                    <div class="bg-yellow-500/20 rounded-full p-3 mb-3"><svg xmlns='http://www.w3.org/2000/svg' class='h-8 w-8 text-yellow-400' fill='none' viewBox='0 0 24 24' stroke='currentColor'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M13 16h-1v-4h-1m1-4h.01M12 20a8 8 0 100-16 8 8 0 000 16z'/></svg></div>
+                    <span class="text-white text-lg font-semibold">0</span>
+                    <span class="text-gray-400 text-sm">Ressources</span>
+                </div>
+            </div>
+            <!-- Activité récente -->
+            <div class="bg-transparent rounded-2xl p-6 shadow-none mb-10">
+                <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2"><svg xmlns='http://www.w3.org/2000/svg' class='h-5 w-5 text-blue-400' fill='none' viewBox='0 0 24 24' stroke='currentColor'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V4a2 2 0 10-4 0v1.341C7.67 7.165 6 9.388 6 12v2.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9'/></svg>Activité récente</h3>
+                <ul class="divide-y divide-[#303d3]">
+                    <li class="py-3 flex items-center gap-3">
+                        <div class="bg-blue-400/20 rounded-full p-2"><svg xmlns='http://www.w3.org/2000/svg' class='h-6 w-6 text-blue-400' fill='none' viewBox='0 0 24 24' stroke='currentColor'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M12 8c-1.657 0-3 1.343-3 3s1.343 3 3 3 3-1.343 3-3-1.343-3-3-3zm0 10c-4.418 0-8-1.79-8-4V7c0-2.21 3.582-4 8-4s8 1.79 8 4v7c0 2.21-3.582 4-8 4z'/></svg></div>
+                        <div>
+                            <span class="text-white font-semibold">Aucune activité récente</span>
+                            <div class="text-gray-400 text-xs">Commencez à publier ou à participer à des discussions !</div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <!-- Suggestions scientifiques -->
+            <div class="bg-transparent rounded-2xl p-6 shadow-none">
+                <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2"><svg xmlns='http://www.w3.org/2000/svg' class='h-5 w-5 text-green-400' fill='none' viewBox='0 0 24 24' stroke='currentColor'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M9 17v-2a4 4 0 014-4h3m4 0a4 4 0 00-4-4h-1.5a2.5 2.5 0 01-2.5-2.5V5'/></svg>Suggestions scientifiques</h3>
+                <div class="flex flex-wrap gap-3">
+                    <span class="bg-blue-500/20 text-blue-300 px-3 py-1 rounded-full text-sm">#Physique</span>
+                    <span class="bg-green-500/20 text-green-300 px-3 py-1 rounded-full text-sm">#Biologie</span>
+                    <span class="bg-yellow-500/20 text-yellow-300 px-3 py-1 rounded-full text-sm">#Mathématiques</span>
+                    <span class="bg-pink-500/20 text-pink-300 px-3 py-1 rounded-full text-sm">#Chimie</span>
+                    <span class="bg-purple-500/20 text-purple-300 px-3 py-1 rounded-full text-sm">#Informatique</span>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+{% endblock %}
+<script src="https://unpkg.com/alpinejs@3.12.0/dist/cdn.min.js" defer></script>
+<script src="https://unpkg.com/htmx.org@1.9.6"></script>
+<style>
+    .fade-in {
+        animation: fadeIn 0.3s ease-in-out;
+    }
+    .drop-in {
+        animation: dropIn 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    @keyframes dropIn {
+        0% { opacity: 0; transform: translateY(-40px) scale(0.95); }
+        100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+</style>

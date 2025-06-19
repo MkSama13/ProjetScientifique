@@ -1,0 +1,53 @@
+{% extends 'core/base.html' %}
+{% load static %}
+{% block navbar %}
+<nav class="fixed w-full z-10 top-0 bg-transparent" style="background: transparent;">
+    <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+        <a href="{% url 'home' %}" class="text-lg font-semibold text-white hover:text-blue-400 transition duration-200 hover:scale-110 active:scale-105">Accueil</a>
+        <div class="flex items-center gap-6">
+            {% block navbar_right %}{% endblock %}
+            <form method="post" action="{% url 'account_logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-error bg-red-600 hover:bg-red-700 text-white rounded-lg shadow transition duration-200">
+                    Déconnexion
+                </button>
+            </form>
+        </div>
+    </div>
+</nav>
+{% endblock %}
+
+{% block content %}
+<!-- Conteneur principal du tableau de bord administrateur -->
+<div class="container mx-auto px-4 py-8 pt-24 fade-in">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-4xl font-bold text-white">Tableau de bord administrateur</h1>
+        <a href="#" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-300">
+            <i class="fas fa-plus-circle mr-2"></i>Publier un communiqué
+        </a>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Card for managing publications -->
+        <div class="bg-gray-800 rounded-lg shadow-lg p-6">
+            <h2 class="text-2xl font-bold text-white mb-4">Gestion des publications</h2>
+            <p class="text-gray-400">Gérez les publications, les articles et les actualités.</p>
+            <a href="#" class="mt-4 inline-block bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg">Gérer</a>
+        </div>
+
+        <!-- Card for managing accounts -->
+        <div class="bg-gray-800 rounded-lg shadow-lg p-6">
+            <h2 class="text-2xl font-bold text-white mb-4">Gestion des comptes</h2>
+            <p class="text-gray-400">Gérez les comptes des utilisateurs et les permissions.</p>
+            <a href="#" class="mt-4 inline-block bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg">Gérer</a>
+        </div>
+
+        <!-- Card for managing comments -->
+        <div class="bg-gray-800 rounded-lg shadow-lg p-6">
+            <h2 class="text-2xl font-bold text-white mb-4">Gestion des commentaires</h2>
+            <p class="text-gray-400">Modérez les commentaires et les discussions.</p>
+            <a href="#" class="mt-4 inline-block bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg">Gérer</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
