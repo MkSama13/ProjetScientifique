@@ -5,8 +5,8 @@
 
 {% block content %}
 
-<div class="flex flex-col md:flex-row items-center justify-center min-h-[80vh] w-full">
-    <div class="md:w-1/2 w-full flex flex-col items-center justify-center px-4 md:px-10 mb-8 md:mb-0">
+<div class="flex flex-col md:flex-row items-center justify-center w-full min-h-0 h-auto mt-0 pt-0">
+    <div class="md:w-1/2 w-full flex flex-col items-center justify-center px-0 md:px-6 mb-8 md:mb-0 mt-0">
         <h1 class="text-3xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-br from-blue-400 via-purple-400 to-pink-400 mb-4 leading-tight drop-shadow-lg text-center animate-fade-in">
             Inscrivez-vous pour avoir accès aux fonctionnalités de la plateforme 
         </h1>
@@ -40,7 +40,7 @@
                         <span id="username-error"></span>
                         {% for error in field.errors %}
                             {% if "already exists" in error %}
-                                <p class="text-red-500 text-xs italic">Ce nom d'utilisateur appartient déjà à un compte existant</p>
+                                <p class="text-red-500 text-xs italic">"Ce nom d'utilisateur appartient déjà à un compte existant!"</p>
                             {% else %}
                                 <p class="text-red-500 text-xs italic">{{ error }}</p>
                             {% endif %}
@@ -146,7 +146,7 @@
                     </div>
                     {% endif %}
                 {% endfor %}
-                <div class="flex items-center justify-between flex-col gap-4 mt-6">
+                <div class="flex items-center justify-between flex-col gap-3 mt-4 mb-0" style="margin-top:1rem;margin-bottom:0;">
                     <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full">
                         {% trans "S'inscrire" %}
                     </button>
@@ -188,7 +188,7 @@
 {% endblock %}
 
 {% block navbar %}
-<nav class="fixed w-full z-10 top-0 bg-transparent" style="background: transparent;">
+<nav class="w-full z-10 top-0 bg-transparent" style="background: transparent; position: static;">
     <div class="container mx-auto px-4 py-3 flex justify-between items-center">
         <a href="{% url 'home' %}" class="text-lg font-semibold text-white hover:text-blue-400 ml-6 transition duration-200 hover:scale-110 active:scale-105">Accueil</a>
     </div>

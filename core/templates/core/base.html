@@ -17,19 +17,40 @@
         body, html, input, button, textarea, select {
             font-family: 'Inter', 'Segoe UI', 'Arial', sans-serif !important;
         }
+        /* Scrollbar styling global, thème bleu nuit moderne */
+        ::-webkit-scrollbar {
+            width: 10px;
+            background: linear-gradient(180deg, #1e293b 60%, #1e40af 100%);
+            border-radius: 8px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #334155 60%, #2563eb 100%);
+            border-radius: 8px;
+            border: 2px solid #0f172a;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, #2563eb 60%, #1e40af 100%);
+        }
+        ::-webkit-scrollbar-corner {
+            background: #0f172a;
+        }
+        html {
+            scrollbar-color: #2563eb #1e293b;
+            scrollbar-width: thin;
+        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-gray-900 to-blue-900 min-h-screen font-sans text-white flex flex-col">
     {% block navbar %}
-    <nav class="fixed w-full z-10 top-0 bg-transparent" style="background: transparent;">
+    <nav class="w-full z-30 top-0 bg-white/10 border-b border-white/30 shadow-lg shadow-blue-900/10 backdrop-blur-md transition-all duration-300" style="background:rgba(255,255,255,0.07);backdrop-filter:blur(12px);position:static;">
         <div class="container mx-auto px-4 py-3 flex items-center justify-between">
-            <a href="{% url 'home' %}" class="text-lg font-semibold text-white hover:text-blue-400 transition duration-200 hover:scale-110 active:scale-105">Accueil</a>
+            <a href="{% url 'home' %}" class="text-xl font-extrabold tracking-wide text-white hover:text-blue-400 transition duration-200 hover:scale-110 active:scale-105 drop-shadow-lg">Accueil</a>
             <div class="flex items-center gap-6">
                 {% block navbar_right %}{% endblock %}
                 {% if user.is_authenticated %}
                 <form method="post" action="{% url 'account_logout' %}">
                     {% csrf_token %}
-                    <button type="submit" class="btn btn-sm btn-error bg-red-600 hover:bg-red-700 text-white rounded-lg shadow transition duration-200">
+                    <button type="submit" class="bg-red-600 hover:bg-red-700 text-white font-bold px-4 py-2 rounded-lg shadow-lg transition-transform duration-200 hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-red-400">
                         Déconnexion
                     </button>
                 </form>

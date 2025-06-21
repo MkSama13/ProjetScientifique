@@ -1,103 +1,219 @@
 {% extends 'core/base.html' %}
 {% load static %}
 {% block navbar %}
-<nav class="fixed w-full z-10 top-0 bg-transparent" style="background: transparent;">
+<nav class="w-full z-10 top-0 bg-transparent" style="background: transparent; position: static;">
     <div class="container mx-auto px-4 py-3 flex items-center justify-between">
         <a href="{% url 'home' %}" class="text-lg font-semibold text-white hover:text-blue-400 transition duration-200 hover:scale-110 active:scale-105">Accueil</a>
+        <!-- Champ recherche déplacé ici -->
+        <div class="flex-1 flex justify-center">
+            <div class="w-full max-w-md mb-0 relative group">
+                <span class="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none transition-transform duration-200 group-focus-within:scale-110 group-hover:scale-110">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z" />
+                    </svg>
+                </span>
+                <input type="text" placeholder="Recherche de publication par tag"
+                    class="w-full pl-10 pr-4 py-2 rounded-xl bg-transparent border border-blue-400/30 text-white placeholder:text-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition hover:scale-105 duration-200 shadow-none" />
+            </div>
+        </div>
         <div class="flex items-center gap-6">
             {% block navbar_right %}{% endblock %}
             <form method="post" action="{% url 'account_logout' %}">
                 {% csrf_token %}
-                <button type="submit" class="btn btn-sm btn-error bg-red-600 hover:bg-red-700 text-white rounded-lg shadow transition duration-200">
+                <button type="submit" class="w-full px-3 py-2 rounded-xl font-bold bg-red-600 text-white shadow-lg hover:bg-red-700 transition-transform duration-200 hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-red-400">
                     Déconnexion
                 </button>
             </form>
-            <input type="text" placeholder="🔍 Recherche par tag"
-                   class="input input-sm input-bordered rounded-xl bg-[#161b22] text-white border-[#30363d] w-64 mt-1">
         </div>
     </div>
 </nav>
 {% endblock %}
 
 {% block content %}
-<div class="container mx-auto px-4 pt-24 fade-in">
+<div class="container mx-auto px-4 pt-0 fade-in">
     <div class="flex flex-col lg:flex-row gap-8">
-        <!-- Sidebar -->
+        <!-- Sidebar gauche -->
         <aside class="w-full lg:w-72 min-h-[500px] bg-transparent border border-transparent rounded-2xl shadow-none p-6 flex flex-col gap-6 sticky top-28 mb-8 lg:mb-0">
-            <span class="text-white font-bold text-lg mb-2 flex items-center gap-2"><svg xmlns='http://www.w3.org/2000/svg' class='h-5 w-5 text-blue-400' fill='none' viewBox='0 0 24 24' stroke='currentColor'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M12 4v16m8-8H4'/></svg>Menu étudiant</span>
-            <nav class="flex flex-col gap-2">
-                <a class="flex items-center gap-2 px-3 py-2 rounded-lg text-white font-semibold transition cursor-pointer transform hover:scale-105 active:scale-95"><svg xmlns='http://www.w3.org/2000/svg' class='h-4 w-4 text-green-400' fill='none' viewBox='0 0 24 24' stroke='currentColor'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 11H5m7-7v14'/></svg>Nouvelle publication</a>
-                <a class="flex items-center gap-2 px-3 py-2 rounded-lg text-white font-semibold transition cursor-pointer transform hover:scale-105 active:scale-95"><svg xmlns='http://www.w3.org/2000/svg' class='h-4 w-4 text-yellow-400' fill='none' viewBox='0 0 24 24' stroke='currentColor'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M8 17l4 4 4-4m0-5V3m-8 8v6a2 2 0 002 2h8a2 2 0 002-2v-6'/></svg>Mes publications</a>
-                <a class="flex items-center gap-2 px-3 py-2 rounded-lg text-white font-semibold transition cursor-pointer transform hover:scale-105 active:scale-95"><svg xmlns='http://www.w3.org/2000/svg' class='h-4 w-4 text-pink-400' fill='none' viewBox='0 0 24 24' stroke='currentColor'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V4a2 2 0 10-4 0v1.341C7.67 7.165 6 9.388 6 12v2.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9'/></svg>Notifications</a>
-                <a class="flex items-center gap-2 px-3 py-2 rounded-lg text-white font-semibold transition cursor-pointer transform hover:scale-105 active:scale-95"><svg xmlns='http://www.w3.org/2000/svg' class='h-4 w-4 text-blue-300' fill='none' viewBox='0 0 24 24' stroke='currentColor'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87M16 3.13a4 4 0 010 7.75M8 3.13a4 4 0 010 7.75'/></svg>Communauté</a>
-            </nav>
-            <div class="mt-8 bg-transparent rounded-xl p-4">
-                <span class="text-gray-400 text-xs uppercase tracking-widest">Raccourcis</span>
-                <ul class="mt-2 flex flex-col gap-2">
-                    <li><a href="#" class="text-blue-400 hover:underline text-sm">Publier un article</a></li>
-                    <li><a href="#" class="text-blue-400 hover:underline text-sm">Consulter les discussions</a></li>
-                    <li><a href="#" class="text-blue-400 hover:underline text-sm">Voir les ressources</a></li>
-                </ul>
+            <!-- Bloc utilisateur -->
+            <div class="mb-4 flex flex-col items-start justify-center gap-1 p-0 rounded-none border-none bg-transparent shadow-none animate-fadeInRight">
+                <span class="font-sans text-base font-bold text-white tracking-normal leading-tight">{{ user.get_full_name|default:user.username }}</span>
+                <span class="font-sans text-sm font-semibold text-gray-400 tracking-normal leading-tight">
+                    {% if user.matricule %}
+                        {% if user.matricule|slice:':4' == 'INFO' %}DEPARTEMENT : INFORMATIQUE{% elif user.matricule|slice:':2' == 'EQ' %}DEPARTEMENT : ELECTRONIQUE{% elif user.matricule|slice:':3' == 'ETT' %}DEPARTEMENT : ELECTRICITE{% else %}Département : -{% endif %}
+                    {% else %}Département : -{% endif %}
+                </span>
+                <span class="font-sans text-sm font-semibold text-gray-400 tracking-normal leading-tight uppercase">
+                    {% if user.matricule %}
+                        {% if user.matricule|slice:':4' == 'INFO' %}PROMOTION : BAC4{% elif user.matricule|slice:':2' == 'EQ' %}PROMOTION : BAC4{% elif user.matricule|slice:':3' == 'ETT' %}PROMOTION : BAC4{% else %}-{% endif %}
+                    {% else %}-{% endif %}
+                </span>
+            </div>
+            <div x-data="{ open: false }" class="bg-transparent" @mouseenter="open = true" @mouseleave="open = false">
+                <button 
+                    class="w-full flex items-center justify-between px-4 py-3 mb-4 rounded-lg bg-transparent hover:bg-transparent transition font-bold text-lg shadow-none focus:outline-none focus:ring-2 focus:ring-blue-400 text-white border border-blue-400/30 group"
+                    aria-haspopup="true"
+                    :aria-expanded="open"
+                    type="button"
+                    tabindex="0"
+                >
+                    <span class="flex items-center gap-2 group-hover:text-blue-300 transition-colors">
+                        <svg xmlns='http://www.w3.org/2000/svg' class='h-5 w-5 text-blue-400 group-hover:text-blue-300 transition-colors' fill='none' viewBox='0 0 24 24' stroke='currentColor'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M12 4v16m8-8H4'/></svg>
+                        Menu étudiant
+                    </span>
+                    <svg :class="{'rotate-180': open}" class="h-5 w-5 ml-2 transition-transform group-hover:text-blue-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </button>
+                <nav x-show="open" x-transition class="bg-transparent" style="pointer-events: auto;">
+                    <ul class="flex flex-col gap-2 mt-2 bg-transparent" @mouseenter="open = true" @mouseleave="open = false">
+                        <li>
+                            <a class="flex items-center gap-2 px-3 py-2 rounded-lg text-white font-semibold transition cursor-pointer transform hover:scale-105 active:scale-95 hover:bg-blue-700/30 bg-transparent" href="#">
+                                <svg xmlns='http://www.w3.org/2000/svg' class='h-4 w-4 text-green-400' fill='none' viewBox='0 0 24 24' stroke='currentColor'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 11H5m7-7v14'/></svg>
+                                Nouvelle publication
+                            </a>
+                        </li>
+                        <li>
+                            <a class="flex items-center gap-2 px-3 py-2 rounded-lg text-white font-semibold transition cursor-pointer transform hover:scale-105 active:scale-95 hover:bg-blue-700/30 bg-transparent" href="#">
+                                <svg xmlns='http://www.w3.org/2000/svg' class='h-4 w-4 text-yellow-400' fill='none' viewBox='0 0 24 24' stroke='currentColor'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M8 17l4 4 4-4m0-5V3m-8 8v6a2 2 0 002 2h8a2 2 0 002-2v-6'/></svg>
+                                Mes publications
+                            </a>
+                        </li>
+                        <li>
+                            <a class="flex items-center gap-2 px-3 py-2 rounded-lg text-white font-semibold transition cursor-pointer transform hover:scale-105 active:scale-95 hover:bg-blue-700/30 bg-transparent" href="#">
+                                <svg xmlns='http://www.w3.org/2000/svg' class='h-4 w-4 text-pink-400' fill='none' viewBox='0 0 24 24' stroke='currentColor'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V4a2 2 0 10-4 0v1.341C7.67 7.165 6 9.388 6 12v2.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9'/></svg>
+                                Notifications
+                            </a>
+                        </li>
+                        <li>
+                            <a class="flex items-center gap-2 px-3 py-2 rounded-lg text-white font-semibold transition cursor-pointer transform hover:scale-105 active:scale-95 hover:bg-blue-700/30 bg-transparent" href="#">
+                                <svg xmlns='http://www.w3.org/2000/svg' class='h-4 w-4 text-blue-300' fill='none' viewBox='0 0 24 24' stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87M16 3.13a4 4 0 010 7.75M8 3.13a4 4 0 010 7.75"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 1.343-3 3s1.343 3 3 3 3-1.343 3-3-1.343-3-3-3zm0 10c-4.418 0-8-1.79-8-4V7c0-2.21 3.582-4 8-4s8 1.79 8 4v7c0 2.21-3.582 4-8 4z"/></svg>
+                                Communauté
+                            </a>
+                        </li>
+                        <li>
+                            <form method="post" action="{% url 'account_logout' %}" class="mt-2">
+                                {% csrf_token %}
+                                <button type="submit" class="px-5 py-2 rounded-xl font-bold bg-red-600 text-white shadow-lg hover:bg-red-700 transition-transform duration-200 hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-red-400">
+                                    Déconnexion
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+            <!-- Statistiques -->
+            <div class="rounded-2xl p-4 shadow-none animate-fadeInRight transition-transform duration-200 flex flex-col items-center gap-4 bg-transparent backdrop-blur-none" style="background:transparent;">
+                <div class="flex flex-col items-center gap-2 transition-transform duration-200 hover:scale-110 cursor-pointer">
+                    <div class="bg-blue-500/20 rounded-full p-2 mb-1">
+                        <svg xmlns='http://www.w3.org/2000/svg' class='h-6 w-6 text-blue-400' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
+                            <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M12 8c-1.657 0-3 1.343-3 3s1.343 3 3 3 3-1.343 3-3-1.343-3-3-3zm0 10c-4.418 0-8-1.79-8-4V7c0-2.21 3.582-4 8-4s8 1.79 8 4v7c0 2.21-3.582 4-8 4z'/>
+                        </svg>
+                    </div>
+                    <span class="text-white text-base font-semibold">0</span>
+                    <span class="text-gray-400 text-xs">Publications</span>
+                </div>
+                <div class="flex flex-col items-center gap-2 transition-transform duration-200 hover:scale-110 cursor-pointer">
+                    <div class="bg-green-500/20 rounded-full p-2 mb-1">
+                        <svg xmlns='http://www.w3.org/2000/svg' class='h-6 w-6 text-green-400' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
+                            <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87M16 3.13a4 4 0 010 7.75M8 3.13a4 4 0 010 7.75'/>
+                        </svg>
+                    </div>
+                    <span class="text-white text-base font-semibold">0</span>
+                    <span class="text-gray-400 text-xs">Discussions</span>
+                </div>
             </div>
         </aside>
-        <!-- Main content -->
+        <!-- Main content central -->
         <main class="flex-1">
-            <h2 class="text-4xl font-bold text-white text-center mb-10 mt-4 drop-in">Tableau de bord étudiant</h2>
-            <!-- Tuiles statistiques -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-                <div class="bg-transparent rounded-2xl p-6 flex flex-col items-center shadow-none hover:scale-105 transition group">
-                    <div class="bg-blue-500/20 rounded-full p-3 mb-3"><svg xmlns='http://www.w3.org/2000/svg' class='h-8 w-8 text-blue-400' fill='none' viewBox='0 0 24 24' stroke='currentColor'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M12 8c-1.657 0-3 1.343-3 3s1.343 3 3 3 3-1.343 3-3-1.343-3-3-3zm0 10c-4.418 0-8-1.79-8-4V7c0-2.21 3.582-4 8-4s8 1.79 8 4v7c0 2.21-3.582 4-8 4z'/></svg></div>
-                    <span class="text-white text-lg font-semibold">0</span>
-                    <span class="text-gray-400 text-sm">Publications</span>
-                </div>
-                <div class="bg-transparent rounded-2xl p-6 flex flex-col items-center shadow-none hover:scale-105 transition group">
-                    <div class="bg-green-500/20 rounded-full p-3 mb-3"><svg xmlns='http://www.w3.org/2000/svg' class='h-8 w-8 text-green-400' fill='none' viewBox='0 0 24 24' stroke='currentColor'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87M16 3.13a4 4 0 010 7.75M8 3.13a4 4 0 010 7.75'/></svg></div>
-                    <span class="text-white text-lg font-semibold">0</span>
-                    <span class="text-gray-400 text-sm">Discussions</span>
-                </div>
-                <div class="bg-transparent rounded-2xl p-6 flex flex-col items-center shadow-none hover:scale-105 transition group">
-                    <div class="bg-yellow-500/20 rounded-full p-3 mb-3"><svg xmlns='http://www.w3.org/2000/svg' class='h-8 w-8 text-yellow-400' fill='none' viewBox='0 0 24 24' stroke='currentColor'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M13 16h-1v-4h-1m1-4h.01M12 20a8 8 0 100-16 8 8 0 000 16z'/></svg></div>
-                    <span class="text-white text-lg font-semibold">0</span>
-                    <span class="text-gray-400 text-sm">Ressources</span>
-                </div>
+            <div x-data="{ open: false }" class="max-w-2xl mx-auto mb-10 relative">
+                <!-- Bouton ouvrir -->
+                <button @click="open = true" type="button" class="flex items-center gap-3 bg-transparent rounded-2xl p-4 shadow-xl border border-blue-400/30 cursor-pointer group backdrop-blur-none transition-all duration-300 w-full">
+                    <svg class="h-6 w-6 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    <span class="text-white text-lg font-semibold">Créer une publication</span>
+                </button>
+                <!-- Overlay formulaire -->
+                <template x-if="open">
+                    <div class="absolute left-1/2 top-0 -translate-x-1/2 z-30 w-full max-w-2xl">
+                        <form method="post" enctype="multipart/form-data"
+                            class="flex flex-col gap-5 animate-fadeInRight rounded-2xl p-6 shadow-2xl border border-blue-400/30 backdrop-blur-xl bg-transparent"
+                            style="background: transparent !important;"
+                            @submit.prevent="open = false; $el.submit()">
+                            {% csrf_token %}
+                            <div>
+                                <label for="titre" class="block text-white font-semibold mb-1">Titre de la publication</label>
+                                <input type="text" id="titre" name="titre" required maxlength="120" placeholder="Titre..." class="w-full px-4 py-2 rounded-lg bg-transparent border border-blue-400/30 text-white placeholder:text-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition" />
+                            </div>
+                            <div>
+                                <label for="contenu" class="block text-white font-semibold mb-1">Contenu de la publication</label>
+                                <textarea id="contenu" name="contenu" required rows="4" maxlength="2000" placeholder="Exprimez-vous..." class="w-full px-4 py-2 rounded-lg bg-transparent border border-blue-400/30 text-white placeholder:text-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition"></textarea>
+                            </div>
+                            <div class="mt-1 mb-2 text-white font-semibold">Cible :</div>
+                            <div class="flex flex-col md:flex-row gap-4">
+                                <div class="flex-1">
+                                    <label for="departement" class="block text-white font-semibold mb-1">Département</label>
+                                    <select id="departement" name="departement" class="w-full px-4 py-2 rounded-lg bg-transparent border border-blue-400/30 text-white focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition placeholder:text-blue-200 appearance-none">
+                                        <option value="" style="background: #101624; color: #fff;">Tous les départements</option>
+                                        <option value="informatique" style="background: #101624; color: #fff;">Informatique</option>
+                                        <option value="electronique" style="background: #101624; color: #fff;">Electronique</option>
+                                        <option value="electricite" style="background: #101624; color: #fff;">Electricité</option>
+                                    </select>
+                                </div>
+                                <div class="flex-1">
+                                    <label for="promotion" class="block text-white font-semibold mb-1">Promotion</label>
+                                    <select id="promotion" name="promotion" class="w-full px-4 py-2 rounded-lg bg-transparent border border-blue-400/30 text-white focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition placeholder:text-blue-200 appearance-none">
+                                        <option value="" style="background: #101624; color: #fff;">Toutes les promotions</option>
+                                        <option value="bac4_info" style="background: #101624; color: #fff;">BAC4 INFO</option>
+                                        <option value="bac4_eq" style="background: #101624; color: #fff;">BAC4 EQ</option>
+                                        <option value="bac4_ett" style="background: #101624; color: #fff;">BAC4 ETT</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div>
+                                <label for="fichiers" class="block text-white font-semibold mb-1">Importer des photos ou PDF</label>
+                                <input type="file" id="fichiers" name="fichiers" accept="image/*,application/pdf" multiple class="block w-full text-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700 transition file:transition-transform file:duration-200" />
+                                <span class="text-xs text-gray-400 mt-1 block">Formats acceptés : images (jpg, png, etc.) et PDF. Max 5 fichiers.</span>
+                            </div>
+                            <div class="flex gap-3 justify-end">
+                                <button type="button" @click="open = false" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-lg shadow-lg transition duration-200 focus:outline-none focus:ring-2 focus:ring-gray-400 transform hover:scale-105 active:scale-95">Annuler</button>
+                                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg shadow-lg transition duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400 transform hover:scale-105 active:scale-95">Publier</button>
+                            </div>
+                        </form>
+                    </div>
+                </template>
             </div>
-            <!-- Activité récente -->
-            <div class="bg-transparent rounded-2xl p-6 shadow-none mb-10">
-                <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2"><svg xmlns='http://www.w3.org/2000/svg' class='h-5 w-5 text-blue-400' fill='none' viewBox='0 0 24 24' stroke='currentColor'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V4a2 2 0 10-4 0v1.341C7.67 7.165 6 9.388 6 12v2.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9'/></svg>Activité récente</h3>
-                <ul class="divide-y divide-[#303d3]">
-                    <li class="py-3 flex items-center gap-3">
-                        <div class="bg-blue-400/20 rounded-full p-2"><svg xmlns='http://www.w3.org/2000/svg' class='h-6 w-6 text-blue-400' fill='none' viewBox='0 0 24 24' stroke='currentColor'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M12 8c-1.657 0-3 1.343-3 3s1.343 3 3 3 3-1.343 3-3-1.343-3-3-3zm0 10c-4.418 0-8-1.79-8-4V7c0-2.21 3.582-4 8-4s8 1.79 8 4v7c0 2.21-3.582 4-8 4z'/></svg></div>
-                        <div>
-                            <span class="text-white font-semibold">Aucune activité récente</span>
-                            <div class="text-gray-400 text-xs">Commencez à publier ou à participer à des discussions !</div>
-                        </div>
+            <h2 class="text-4xl font-bold text-white text-center mb-10 mt-4 drop-in">Tableau de bord étudiant</h2>
+        </main>
+        <!-- Sidebar droite : Activité récente + Statistiques -->
+        <aside class="hidden lg:flex flex-col w-full lg:w-80 min-h-[500px] ml-0 lg:ml-4 sticky top-28 gap-6">
+            <!-- Activité récente & Notifications -->
+            <div class="rounded-2xl p-6 shadow-none animate-fadeInRight transition-transform duration-200 hover:scale-105 bg-transparent backdrop-blur-xl border border-blue-400/30" style="background: transparent;">
+                <div class="flex items-center gap-3 mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V4a2 2 0 10-4 0v1.341C7.67 7.165 6 9.388 6 12v2.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                    </svg>
+                    <span class="text-xl font-bold text-white">Activité & Notifications</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-400 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V4a2 2 0 10-4 0v1.341C7.67 7.165 6 9.388 6 12v2.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                    </svg>
+                </div>
+                <ul class="divide-y divide-blue-900/30 flex flex-col gap-2">
+                    <li class="py-6 flex flex-col items-center justify-center text-gray-500 text-base italic gap-2">
+                        <span class="flex gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V4a2 2 0 10-4 0v1.341C7.67 7.165 6 9.388 6 12v2.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                            </svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V4a2 2 0 10-4 0v1.341C7.67 7.165 6 9.388 6 12v2.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                            </svg>
+                        </span>
+                        Aucune activité et notifications pour l'instant
                     </li>
                 </ul>
             </div>
-            <!-- Suggestions scientifiques -->
-            <div class="bg-transparent rounded-2xl p-6 shadow-none">
-                <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2"><svg xmlns='http://www.w3.org/2000/svg' class='h-5 w-5 text-green-400' fill='none' viewBox='0 0 24 24' stroke='currentColor'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M9 17v-2a4 4 0 014-4h3m4 0a4 4 0 00-4-4h-1.5a2.5 2.5 0 01-2.5-2.5V5'/></svg>Suggestions scientifiques</h3>
-                <div class="flex flex-wrap gap-3">
-                    <span class="bg-blue-500/20 text-blue-300 px-3 py-1 rounded-full text-sm">#Physique</span>
-                    <span class="bg-green-500/20 text-green-300 px-3 py-1 rounded-full text-sm">#Biologie</span>
-                    <span class="bg-yellow-500/20 text-yellow-300 px-3 py-1 rounded-full text-sm">#Mathématiques</span>
-                    <span class="bg-pink-500/20 text-pink-300 px-3 py-1 rounded-full text-sm">#Chimie</span>
-                    <span class="bg-purple-500/20 text-purple-300 px-3 py-1 rounded-full text-sm">#Informatique</span>
-                </div>
-            </div>
-        </main>
+        </aside>
     </div>
 </div>
-{% endblock %}
-<script src="https://unpkg.com/alpinejs@3.12.0/dist/cdn.min.js" defer></script>
-<script src="https://unpkg.com/htmx.org@1.9.6"></script>
 <style>
-    .fade-in {
-        animation: fadeIn 0.3s ease-in-out;
-    }
-    .drop-in {
-        animation: dropIn 0.5s cubic-bezier(0.23, 1, 0.32, 1);
-    }
     @keyframes fadeIn {
         from { opacity: 0; }
         to { opacity: 1; }
@@ -106,4 +222,12 @@
         0% { opacity: 0; transform: translateY(-40px) scale(0.95); }
         100% { opacity: 1; transform: translateY(0) scale(1); }
     }
+    @keyframes fadeInRight {
+        from { opacity: 0; transform: translateX(40px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+    .animate-fadeInRight {
+        animation: fadeInRight 0.7s cubic-bezier(0.23, 1, 0.32, 1);
+    }
 </style>
+{% endblock %}

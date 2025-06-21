@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'allauth',  # Application tierce pour l'authentification
     'allauth.account',  # Gestion des comptes avec allauth
     'allauth.socialaccount',  # Gestion des comptes sociaux avec allauth
+    'imagekit',  # Application tierce pour le traitement d'images
 ]
 
 # Middleware utilisés par le projet
