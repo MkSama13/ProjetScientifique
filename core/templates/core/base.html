@@ -66,5 +66,28 @@
 <footer class="bg-transparent text-center text-white py-4 mt-auto w-full">
     Institut Superieur Pedagogique et Technique de Likasi
 </footer>
+<!-- Script pour confirmation de suppression et effet fade-out -->
+<script>
+    document.body.addEventListener('htmx:configRequest', function(evt) {
+        var elt = evt.target;
+        // Confirmation pour les formulaires de suppression
+        if (elt.matches('form[data-confirm]')) {
+            if (!confirm(elt.getAttribute('data-confirm'))) {
+                evt.preventDefault();
+            }
+        }
+    });
+    // Fade out sur suppression d'une publication
+    document.body.addEventListener('htmx:beforeSwap', function(evt) {
+        if (evt.detail.xhr && evt.detail.xhr.status === 204 && evt.target.classList.contains('publication-card')) {
+            evt.detail.shouldSwap = false;
+            evt.target.style.transition = 'opacity 0.4s';
+            evt.target.style.opacity = 0;
+            setTimeout(function() {
+                evt.target.remove();
+            }, 400);
+        }
+    });
+</script>
 </body>
 </html>

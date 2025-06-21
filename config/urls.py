@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.urls import path, include
-from core.views import CustomSignupView, dashboard, check_username
+from core.views import CustomSignupView, dashboard, check_username, delete_publication
 from core import views
 
 urlpatterns = [
@@ -11,4 +11,5 @@ urlpatterns = [
     path('dashboard/', dashboard, name='dashboard'),
     path('check-username/', views.check_username, name='check_username'),
     path('check-matricule/', views.check_matricule, name='check_matricule'),
+    path('publication/delete/<int:pk>/', delete_publication, name='delete_publication'),
 ]

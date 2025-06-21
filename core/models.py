@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.core.validators import RegexValidator
+from django.conf import settings
 
 # Modèle utilisateur personnalisé étendant AbstractUser
 class CustomUser(AbstractUser):
@@ -18,3 +19,18 @@ class CustomUser(AbstractUser):
     )
 
 # Modèle pour les publications
+class Publication(models.Model):
+    auteur = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='publications')
+    titre = models.CharField(max_length=120)
+    contenu = models.TextField(max_length=2000)
+    departement = models.CharField(max_length=50, blank=True)
+    promotion = models.CharField(max_length=50, blank=True)
+    fichier = models.FileField(upload_to='publications/', blank=True, null=True)
+    tags = models.CharField(max_length=200, blank=True, help_text="Tags séparés par des virgules")
+    date_pub = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-date_pub']
+
+    def __str__(self):
+        return f"{self.titre} par {self.auteur}"
