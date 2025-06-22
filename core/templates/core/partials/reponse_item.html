@@ -1,0 +1,56 @@
+{% load static %}
+<div id="reponse-{{ reponse.pk }}" class="reponse-item flex flex-col gap-1 ml-12 group">
+    <div class="flex items-start gap-2">
+        <div class="flex-1">
+            <span class="font-semibold text-blue-200">{{ reponse.auteur.get_full_name|default:reponse.auteur.username }}</span>
+            <span class="text-xs text-gray-400 ml-2">{{ reponse.date_reponse|date:'d/m/Y H:i' }}</span>
+            <p class="text-white mt-1">{{ reponse.contenu }}</p>
+        </div>
+    </div>
+    <div class="flex items-center gap-2 ml-6">
+        <span class="text-blue-400 text-xs font-semibold cursor-pointer hover:underline" onclick="toggleReponseFormReponse({{ reponse.pk }})">Répondre</span>
+        {% if reponse.auteur == user %}
+        <form method="POST" hx-post="{% url 'delete_reponse' reponse.pk %}" hx-target="#reponse-{{ reponse.pk }}" hx-swap="outerHTML" class="inline">
+            {% csrf_token %}
+            <button type="submit" class="text-red-400 text-xs font-semibold cursor-pointer hover:underline bg-transparent border-0 p-0" style="background:none;">Supprimer</button>
+        </form>
+        {% endif %}
+    </div>
+    <div id="reponse-form-reponse-{{ reponse.pk }}" class="hidden mt-1 ml-6">
+        <form method="post" hx-post="{% url 'add_reponse' reponse.pk %}" hx-target="#reponses-list-reponse-{{ reponse.pk }}" hx-swap="afterbegin" class="flex gap-2 items-start reponse-form-reponse">
+            {% csrf_token %}
+            <textarea name="contenu" rows="1" maxlength="300" placeholder="Répondre à la réponse..." class="w-full px-3 py-1 rounded-lg bg-[#181f36] border border-blue-400/30 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"></textarea>
+            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-3 py-1 rounded-lg text-xs">Publier</button>
+        </form>
+    </div>
+    <div id="reponses-list-reponse-{{ reponse.pk }}">
+        {% for rep in reponse.reponses.all %}
+            {% include 'core/partials/reponse_item.html' with reponse=rep user=user %}
+        {% endfor %}
+    </div>
+</div>
+<script>
+function toggleReponseFormReponse(reponseId) {
+    const form = document.getElementById('reponse-form-reponse-' + reponseId);
+    if (form) form.classList.toggle('hidden');
+}
+// Suppression dynamique fade-out (HTMX 204)
+if (window.htmx) {
+    document.body.addEventListener('htmx:beforeSwap', function(evt) {
+        if (evt.detail.xhr && evt.detail.xhr.status === 204 && evt.target.classList.contains('reponse-item')) {
+            evt.detail.shouldSwap = false;
+            evt.target.style.transition = 'opacity 0.4s';
+            evt.target.style.opacity = 0;
+            setTimeout(function() {
+                evt.target.remove();
+            }, 400);
+        }
+        // Fermeture du champ de réponse après ajout
+        if (evt.detail.target && evt.detail.target.id && evt.detail.target.id.startsWith('reponses-list-reponse-')) {
+            const reponseId = evt.detail.target.id.replace('reponses-list-reponse-', '');
+            const form = document.getElementById('reponse-form-reponse-' + reponseId);
+            if (form) form.classList.add('hidden');
+        }
+    });
+}
+</script>

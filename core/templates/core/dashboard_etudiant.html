@@ -35,7 +35,7 @@
         <!-- Sidebar gauche -->
         <aside class="w-full lg:w-72 min-h-[500px] bg-transparent border border-transparent rounded-2xl shadow-none p-6 flex flex-col gap-6 sticky top-28 mb-8 lg:mb-0">
             <!-- Bloc utilisateur -->
-            <div class="mb-4 flex flex-col items-start justify-center gap-1 p-0 rounded-none border-none bg-transparent shadow-none animate-fadeInRight">
+            <div class="mb-4 flex flex-col items-start justify-center gap-1 p-0 rounded-none border-none bg-transparent shadow-none">
                 <span class="font-sans text-base font-bold text-white tracking-normal leading-tight">{{ user.get_full_name|default:user.username }}</span>
                 <span class="font-sans text-sm font-semibold text-gray-400 tracking-normal leading-tight">
                     {% if user.matricule %}
@@ -170,7 +170,7 @@
         <!-- Sidebar droite : Activité récente + Statistiques -->
         <aside class="hidden lg:flex flex-col w-full lg:w-80 min-h-[500px] ml-0 lg:ml-4 sticky top-28 gap-6">
             <!-- Activité récente & Notifications -->
-            <div class="rounded-2xl p-6 shadow-none animate-fadeInRight transition-transform duration-200 hover:scale-105 bg-transparent backdrop-blur-xl border border-blue-400/30" style="background: transparent;">
+<div id="bloc-activite-notifications" class="rounded-2xl p-6 shadow-none transition-transform duration-200 bg-transparent backdrop-blur-xl border border-blue-400/30 fixed-activite-notifications" hx-get="{% url 'bloc_activite_notifications' %}" hx-trigger="every 3s, reload-activite-notifications from:body" hx-swap="outerHTML">
                 <div class="flex items-center gap-3 mb-4">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V4a2 2 0 10-4 0v1.341C7.67 7.165 6 9.388 6 12v2.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
@@ -181,51 +181,12 @@
                     </svg>
                 </div>
                 <ul class="divide-y divide-blue-900/30 flex flex-col gap-2">
-                    <li class="py-6 flex flex-col items-center justify-center text-gray-500 text-base italic gap-2">
-                        <span class="flex gap-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V4a2 2 0 10-4 0v1.341C7.67 7.165 6 9.388 6 12v2.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
-                            </svg>
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V4a2 2 0 10-4 0v1.341C7.67 7.165 6 9.388 6 12v2.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
-                            </svg>
-                        </span>
-                        Aucune activité et notifications pour l'instant
-                    </li>
+                    {% include 'core/partials/activite_notifications.html' %}
                 </ul>
             </div>
             <!-- Statistiques -->
-            <div class="rounded-2xl p-4 shadow-none animate-fadeInRight transition-transform duration-200 flex flex-col items-center gap-4 bg-transparent backdrop-blur-none mt-2" style="background:transparent;">
-                <div class="flex flex-col items-center gap-2 transition-transform duration-200 hover:scale-110 cursor-pointer">
-                    <div class="bg-blue-500/20 rounded-full p-2 mb-1">
-                        <svg xmlns='http://www.w3.org/2000/svg' class='h-6 w-6 text-blue-400' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
-                            <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M12 8c-1.657 0-3 1.343-3 3s1.343 3 3 3 3-1.343 3-3-1.343-3-3-3zm0 10c-4.418 0-8-1.79-8-4V7c0-2.21 3.582-4 8-4s8 1.79 8 4v7c0 2.21-3.582 4-8 4z'/>
-                        </svg>
-                    </div>
-                    <span class="text-white text-base font-semibold">0</span>
-                    <span class="text-gray-400 text-xs">Publications</span>
-                </div>
-                <div class="flex flex-col items-center gap-2 transition-transform duration-200 hover:scale-110 cursor-pointer">
-                    <div class="bg-yellow-500/20 rounded-full p-2 mb-1">
-                        <!-- Nouvelle icône commentaire -->
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v8a2 2 0 01-2 2H7a2 2 0 01-2-2V10a2 2 0 012-2h2m5-4h-4m0 0V4m0 0v4" />
-                        </svg>
-                    </div>
-                    <span class="text-white text-base font-semibold">0</span>
-                    <span class="text-gray-400 text-xs">Commentaires</span>
-                </div>
-                <div class="flex flex-col items-center gap-2 transition-transform duration-200 hover:scale-110 cursor-pointer">
-                    <div class="bg-purple-500/20 rounded-full p-2 mb-1">
-                        <!-- Icône fichier -->
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7V3a1 1 0 011-1h8a1 1 0 011 1v18a1 1 0 01-1 1H8a1 1 0 01-1-1v-4" />
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7l5 5 5-5" />
-                        </svg>
-                    </div>
-                    <span class="text-white text-base font-semibold">0</span>
-                    <span class="text-gray-400 text-xs">Fichiers importés</span>
-                </div>
+            <div class="rounded-2xl p-4 shadow-none transition-transform duration-200 flex flex-col items-center gap-4 bg-transparent backdrop-blur-none mt-2" style="background:transparent;" id="bloc-statistiques" hx-get="{% url 'bloc_statistiques' %}" hx-trigger="every 10s, reload-statistiques from:body" hx-swap="outerHTML">
+                {% include 'core/partials/statistiques.html' %}
             </div>
         </aside>
     </div>

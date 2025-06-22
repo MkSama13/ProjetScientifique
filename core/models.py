@@ -47,3 +47,16 @@ class Commentaire(models.Model):
 
     def __str__(self):
         return f"Commentaire de {self.auteur} sur {self.publication}"
+
+# Modèle pour les réponses aux commentaires
+class Reponse(models.Model):
+    commentaire = models.ForeignKey(Commentaire, on_delete=models.CASCADE, related_name='reponses')
+    auteur = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    contenu = models.TextField(max_length=300)
+    date_reponse = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['date_reponse']
+
+    def __str__(self):
+        return f"Réponse de {self.auteur} au commentaire {self.commentaire_id}"

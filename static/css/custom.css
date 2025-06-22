@@ -1,0 +1,7 @@
+/* Custom styles for fixed size Activité & Notifications block */
+.fixed-activite-notifications {
+    background: transparent !important;
+    max-height: 340px !important;
+    min-height: 340px !important;
+    overflow-y: auto !important;
+}

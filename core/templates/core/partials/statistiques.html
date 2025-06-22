@@ -1,0 +1,42 @@
+<div class="flex flex-col items-center gap-2 transition-transform duration-200 hover:scale-110 cursor-pointer">
+    <div class="bg-blue-500/20 rounded-full p-2 mb-1">
+        <svg xmlns='http://www.w3.org/2000/svg' class='h-6 w-6 text-blue-400' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
+            <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M12 8c-1.657 0-3 1.343-3 3s1.343 3 3 3 3-1.343 3-3-1.343-3-3-3zm0 10c-4.418 0-8-1.79-8-4V7c0-2.21 3.582-4 8-4s8 1.79 8 4v7c0 2.21-3.582 4-8 4z'/>
+        </svg>
+    </div>
+    <span class="text-white text-base font-semibold">{{ nb_publications }}</span>
+    <span class="text-gray-400 text-xs">Nombres de vos publications</span>
+</div>
+<div class="flex flex-col items-center gap-2 transition-transform duration-200 hover:scale-110 cursor-pointer">
+    <div class="bg-yellow-500/20 rounded-full p-2 mb-1">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v8a2 2 0 01-2 2H7a2 2 0 01-2-2V10a2 2 0 012-2h2m5-4h-4m0 0V4m0 0v4" />
+        </svg>
+    </div>
+    <span class="text-white text-base font-semibold" id="stat-nb-commentaires">{{ nb_commentaires }}</span>
+    <span class="text-gray-400 text-xs">Commentaires accumulés</span>
+</div>
+<div class="flex flex-col items-center gap-2 transition-transform duration-200 hover:scale-110 cursor-pointer">
+    <div class="bg-purple-500/20 rounded-full p-2 mb-1">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7V3a1 1 0 011-1h8a1 1 0 011 1v18a1 1 0 01-1 1H8a1 1 0 01-1-1v-4" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7l5 5 5-5" />
+        </svg>
+    </div>
+    <span class="text-white text-base font-semibold">{{ nb_fichiers }}</span>
+    <span class="text-gray-400 text-xs">Nombres des fichiers importés</span>
+</div>
+<script>
+// Rafraîchit dynamiquement le nombre de commentaires dans les stats après ajout/suppression
+if (window.htmx) {
+    document.body.addEventListener('htmx:afterSwap', function(evt) {
+        // Si un commentaire ou une réponse a été ajouté/supprimé, on rafraîchit le bloc stats
+        if (
+            (evt.detail.target && evt.detail.target.id && evt.detail.target.id.startsWith('comments-list-')) ||
+            (evt.detail.target && evt.detail.target.classList && evt.detail.target.classList.contains('reponse-item'))
+        ) {
+            window.dispatchEvent(new CustomEvent('reload-statistiques'));
+        }
+    });
+}
+</script>

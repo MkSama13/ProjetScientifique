@@ -3,7 +3,7 @@ from django import forms
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 import re
-from .models import Publication, Commentaire
+from .models import Publication, Commentaire, Reponse
 
 User = get_user_model()
 
@@ -82,5 +82,18 @@ class CommentaireForm(forms.ModelForm):
                 'rows': 2,
                 'maxlength': 500,
                 'placeholder': 'Écrire un commentaire...'
+            })
+        }
+
+class ReponseForm(forms.ModelForm):
+    class Meta:
+        model = Reponse
+        fields = ['contenu']
+        widgets = {
+            'contenu': forms.Textarea(attrs={
+                'class': 'w-full px-3 py-1 rounded-lg bg-[#181f36] border border-blue-400/30 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-400',
+                'rows': 1,
+                'maxlength': 300,
+                'placeholder': 'Répondre...'
             })
         }
