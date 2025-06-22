@@ -60,3 +60,17 @@ class Reponse(models.Model):
 
     def __str__(self):
         return f"Réponse de {self.auteur} au commentaire {self.commentaire_id}"
+
+# Modèle pour les communiqués
+class Communique(models.Model):
+    auteur = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='communiques')
+    titre = models.CharField(max_length=120)
+    contenu = models.TextField(max_length=2000)
+    date_pub = models.DateTimeField(auto_now_add=True)
+    fichier = models.FileField(upload_to='communiques/', blank=True, null=True)
+
+    class Meta:
+        ordering = ['-date_pub']
+
+    def __str__(self):
+        return f"Communiqué: {self.titre} par {self.auteur}"

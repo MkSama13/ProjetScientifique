@@ -1,8 +1,9 @@
 from django.urls import path
-from .views import add_commentaire, delete_commentaire, add_reponse, delete_reponse, edit_publication, bloc_activite_notifications, bloc_statistiques
+from .views import add_commentaire, delete_commentaire, add_reponse, delete_reponse, edit_publication, bloc_activite_notifications, bloc_statistiques, dashboard
 
 urlpatterns = [
     # ...existing code...
+    path('dashboard/', dashboard, name='dashboard'),
     path('publication/<int:pub_id>/commentaire/', add_commentaire, name='add_commentaire'),
     path('commentaire/<int:pk>/delete/', delete_commentaire, name='delete_commentaire'),
 ]

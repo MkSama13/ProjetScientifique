@@ -3,13 +3,14 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from allauth.account.views import SignupView
-from .forms import CustomSignupForm, PublicationForm, CommentaireForm, ReponseForm
-from .models import Publication, Commentaire, Reponse
+from .forms import CustomSignupForm, PublicationForm, CommentaireForm, ReponseForm, CommuniqueForm
+from .models import Publication, Commentaire, Reponse, Communique
 from django.views.decorators.http import require_GET, require_POST
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse
 from django.contrib.auth import get_user_model
 from django.db.models import Count, Q
 from django.views.decorators.csrf import csrf_exempt
+from django.utils import timezone
 
 # Create your views here.
 def home(request):
@@ -29,13 +30,14 @@ def dashboard(request):
             return HttpResponseRedirect(reverse('dashboard'))
     else:
         form = PublicationForm()
-    publications = Publication.objects.all()
+    # Afficher uniquement les publications de l'utilisateur connecté
+    publications = Publication.objects.filter(auteur=request.user)
     commentaire_form = CommentaireForm()
     for pub in publications:
         pub.commentaire_form = commentaire_form
         pub.commentaire_action_url = reverse('add_commentaire', args=[pub.pk])
     # Statistiques utilisateur
-    user_publications = Publication.objects.filter(auteur=request.user)
+    user_publications = publications
     nb_publications = user_publications.count()
     nb_commentaires = Commentaire.objects.filter(auteur=request.user).count()
     nb_fichiers = user_publications.exclude(fichier='').exclude(fichier=None).count()
@@ -167,7 +169,6 @@ def edit_publication(request, pk):
 @login_required
 @require_GET
 def bloc_activite_notifications(request):
-    # 5 dernières notifications personnalisées (pas d'activités de l'utilisateur)
     notifications = []
     # Commentaires sur les publications de l'utilisateur
     notif_comment = Commentaire.objects.filter(publication__auteur=request.user).exclude(auteur=request.user).order_by('-date_commentaire')[:5]
@@ -187,14 +188,16 @@ def bloc_activite_notifications(request):
             'date': notif.date_reponse,
             'message': f"{notif.auteur.get_full_name() or notif.auteur.username} a répondu à votre commentaire"
         })
-    # Communiqués de l'administration (exemple, à adapter selon votre modèle)
-    from datetime import datetime, timedelta
-    notifications.append({
-        'type': 'admin',
-        'auteur': None,
-        'date': datetime.now() - timedelta(hours=1),
-        'message': "L'administration a publié un nouveau communiqué"
-    })
+    # Communiqués de l'administration (notification automatique)
+    from .models import Communique
+    dernier_communique = Communique.objects.order_by('-date_pub').first()
+    if dernier_communique:
+        notifications.append({
+            'type': 'admin',
+            'auteur': None,
+            'date': dernier_communique.date_pub,
+            'message': f"Nouveau communiqué : {dernier_communique.titre}"
+        })
     # On trie toutes les notifications par date décroissante et on garde les 5 plus récentes
     notifications = sorted(notifications, key=lambda n: n['date'], reverse=True)[:5]
     return render(request, 'core/partials/activite_notifications.html', {
