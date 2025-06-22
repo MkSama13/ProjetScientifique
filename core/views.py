@@ -3,10 +3,10 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from allauth.account.views import SignupView
-from .forms import CustomSignupForm, PublicationForm
-from .models import Publication
+from .forms import CustomSignupForm, PublicationForm, CommentaireForm
+from .models import Publication, Commentaire
 from django.views.decorators.http import require_GET, require_POST
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.contrib.auth import get_user_model
 
 # Create your views here.
@@ -30,6 +30,11 @@ def dashboard(request):
     else:
         form = PublicationForm()
     publications = Publication.objects.all()
+    commentaire_form = CommentaireForm()
+    # Pour chaque publication, fournir le formulaire et l'URL d'action pour le commentaire
+    for pub in publications:
+        pub.commentaire_form = commentaire_form
+        pub.commentaire_action_url = reverse('add_commentaire', args=[pub.pk])
     if is_htmx:
         return render(request, 'core/partials/publications_list.html', {'publications': publications, 'user': request.user})
     return render(request, 'core/dashboard_etudiant.html', {"user": request.user, 'form': form, 'publications': publications})
@@ -70,4 +75,32 @@ def delete_publication(request, pk):
         return JsonResponse({'success': False, 'error': 'Non autorisé'}, status=403)
     pub.delete()
     # Retourner une réponse vide pour HTMX (pas de JSON, pas de texte)
+    return HttpResponse(status=204)
+
+@login_required
+@require_POST
+def add_commentaire(request, pub_id):
+    pub = Publication.objects.get(pk=pub_id)
+    form = CommentaireForm(request.POST)
+    if form.is_valid():
+        commentaire = form.save(commit=False)
+        commentaire.auteur = request.user
+        commentaire.publication = pub
+        commentaire.save()
+        # Rendu du commentaire seul pour insertion dynamique
+        return render(request, 'core/partials/commentaire_item.html', {'commentaire': commentaire, 'user': request.user})
+    # Rendu du formulaire avec erreurs
+    return render(request, 'core/partials/commentaire_form.html', {'form': form, 'pub': pub, 'action_url': reverse('add_commentaire', args=[pub_id])})
+
+@login_required
+@require_POST
+def delete_commentaire(request, pk):
+    try:
+        commentaire = Commentaire.objects.get(pk=pk)
+    except Commentaire.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Commentaire introuvable'}, status=404)
+    if commentaire.auteur != request.user:
+        return JsonResponse({'success': False, 'error': 'Non autorisé'}, status=403)
+    commentaire.delete()
+    # Retourne une réponse vide (204) pour HTMX, comme pour les publications
     return HttpResponse(status=204)

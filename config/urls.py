@@ -12,4 +12,5 @@ urlpatterns = [
     path('check-username/', views.check_username, name='check_username'),
     path('check-matricule/', views.check_matricule, name='check_matricule'),
     path('publication/delete/<int:pk>/', delete_publication, name='delete_publication'),
+    path('core/', include('core.urls')),
 ]

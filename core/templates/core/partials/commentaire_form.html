@@ -1,0 +1,31 @@
+{% load static %}
+<form method="post" hx-post="{{ action_url }}" hx-target="#comments-list-{{ pub.pk }}" hx-swap="afterbegin" class="flex gap-2 items-start mt-2 group/comment" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="flex-1">
+        {{ form.contenu }}
+    </div>
+    <button type="submit" class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-lg shadow-lg transition duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400 transform hover:scale-105 active:scale-95">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+        Publier
+    </button>
+</form>
+<style>
+    /* Champ commentaire dans le thème */
+    .group\/comment textarea {
+        background: #181f36 !important;
+        color: #fff !important;
+        border: 1px solid rgba(96,165,250,0.3) !important;
+        border-radius: 0.75rem !important;
+        font-size: 1rem;
+        padding: 0.75rem 1rem;
+        transition: border 0.18s, box-shadow 0.18s;
+        box-shadow: none;
+        min-height: 2.5rem;
+        resize: none;
+    }
+    .group\/comment textarea:focus {
+        border-color: #60a5fa !important;
+        outline: none;
+        box-shadow: 0 0 0 2px #60a5fa44;
+    }
+</style>

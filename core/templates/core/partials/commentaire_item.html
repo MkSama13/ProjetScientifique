@@ -1,0 +1,15 @@
+<div id="comment-{{ commentaire.pk }}" class="commentaire-item flex items-start gap-3 mb-3 group">
+    <div class="flex-1">
+        <span class="font-semibold text-blue-300">{{ commentaire.auteur.get_full_name|default:commentaire.auteur.username }}</span>
+        <span class="text-xs text-gray-400 ml-2">{{ commentaire.date_commentaire|date:'d/m/Y H:i' }}</span>
+        <p class="text-white mt-1">{{ commentaire.contenu }}</p>
+    </div>
+    {% if commentaire.auteur == user %}
+    <form method="POST" hx-post="{% url 'delete_commentaire' commentaire.pk %}" hx-target="#comment-{{ commentaire.pk }}" hx-swap="outerHTML" class="ml-2">
+        {% csrf_token %}
+        <button type="submit" class="text-red-400 hover:text-white hover:bg-red-600 rounded-full p-1 transition" title="Supprimer le commentaire">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+        </button>
+    </form>
+    {% endif %}
+</div>

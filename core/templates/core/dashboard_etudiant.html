@@ -112,7 +112,7 @@
     hx-swap="afterbegin"
     class="flex flex-col gap-5 animate-fadeInRight rounded-2xl p-6 shadow-2xl border border-blue-400/30 backdrop-blur-xl bg-[#101624]"
     style="background: transparent !important;"
-    hx-on:afterRequest="open = false">
+    hx-on:afterRequest="this.reset(); open = false">
     {% csrf_token %}
     <div>
         <label for="titre" class="block text-white font-semibold mb-1">Titre de la publication</label>
@@ -162,7 +162,9 @@
             </div>
             <h2 class="text-4xl font-bold text-white text-center mb-10 mt-4 drop-in">Tableau de bord étudiant</h2>
             <div id="publications-list">
-                {% include 'core/partials/publications_list.html' with publications=publications user=user %}
+                {% for pub in publications %}
+        {% include 'core/partials/publication_card.html' with pub=pub user=user commentaire_form=pub.commentaire_form commentaire_action_url=pub.commentaire_action_url %}
+    {% endfor %}
             </div>
         </main>
         <!-- Sidebar droite : Activité récente + Statistiques -->

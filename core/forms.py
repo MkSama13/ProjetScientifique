@@ -3,7 +3,7 @@ from django import forms
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 import re
-from .models import Publication
+from .models import Publication, Commentaire
 
 User = get_user_model()
 
@@ -70,4 +70,17 @@ class PublicationForm(forms.ModelForm):
             'promotion': forms.Select(attrs={'class': 'w-full px-4 py-2 rounded-lg bg-transparent border border-blue-400/30 text-white focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition placeholder:text-blue-200 appearance-none'}),
             'fichier': forms.ClearableFileInput(attrs={'class': 'block w-full text-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700 transition file:transition-transform file:duration-200', 'accept': 'image/*,application/pdf'}),
             'tags': forms.TextInput(attrs={'class': 'w-full px-4 py-2 rounded-lg bg-transparent border border-blue-400/30 text-white placeholder:text-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition', 'placeholder': 'Tags (séparés par des virgules)'}),
+        }
+
+class CommentaireForm(forms.ModelForm):
+    class Meta:
+        model = Commentaire
+        fields = ['contenu']
+        widgets = {
+            'contenu': forms.Textarea(attrs={
+                'class': 'w-full px-4 py-2 rounded-lg bg-[#181f36] border border-blue-400/30 text-white placeholder:text-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition',
+                'rows': 2,
+                'maxlength': 500,
+                'placeholder': 'Écrire un commentaire...'
+            })
         }

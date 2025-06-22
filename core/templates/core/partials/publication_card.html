@@ -1,26 +1,27 @@
 {% load static %}
 <div id="pub-{{ pub.pk }}" class="publication-card rounded-2xl p-6 mb-6 bg-[#101624] border border-blue-400/30 shadow-xl group relative transition-all duration-300">
-    <div class="flex items-center justify-between mb-2">
-        <div class="flex items-center gap-3">
-            <span class="font-bold text-white">{{ pub.auteur.get_full_name|default:pub.auteur.username }}</span>
-            <span class="text-xs text-blue-300 font-semibold uppercase">{{ pub.promotion }}</span>
-            <span class="text-xs text-gray-400">{{ pub.date_pub|date:'d/m/Y H:i' }}</span>
+    <div class="flex items-center gap-3 mb-2">
+        <div class="flex-shrink-0">
+            <svg class="h-10 w-10 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A9 9 0 1112 21a9 9 0 01-6.879-3.196z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
         </div>
-        {% if pub.auteur == user %}
-        <form method="POST" hx-post="{% url 'delete_publication' pub.pk %}" hx-target="#pub-{{ pub.pk }}" hx-swap="outerHTML" class="inline-block">
-            {% csrf_token %}
-            <button type="submit"
-                class="text-red-500 hover:text-white hover:bg-red-600 font-bold text-xs px-3 py-1 rounded-lg border border-red-500 transition duration-150 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2"
-                title="Supprimer">
-                <svg xmlns="http://www.w3.org/2000/svg" class="inline h-4 w-4 mr-1 align-text-bottom" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-                Supprimer
-            </button>
-        </form>
-        {% endif %}
+        <div>
+            <span class="font-bold text-white text-lg">{{ pub.auteur.get_full_name|default:pub.auteur.username }}</span>
+            <div class="text-xs text-blue-300 font-semibold mt-0.5">
+                {% if pub.auteur.matricule %}
+                    {% if pub.auteur.matricule|slice:':4' == 'INFO' %}BAC4 INFORMATIQUE
+                    {% elif pub.auteur.matricule|slice:':2' == 'EQ' %}BAC4 EELECTRONIQUE
+                    {% elif pub.auteur.matricule|slice:':3' == 'ETT' %}BAC4 ELECTRICITE
+                    {% else %}-{% endif %}
+                {% else %}-{% endif %}
+            </div>
+        </div>
+        <span class="ml-auto text-xs text-gray-400">{{ pub.date_pub|date:'d/m/Y H:i' }}</span>
     </div>
-    <div class="mb-2">
-        <h3 class="text-xl font-bold text-blue-200 mb-1">{{ pub.titre }}</h3>
-        <p class="text-white whitespace-pre-line">{{ pub.contenu }}</p>
+    <div class="mb-2 text-white text-base">
+        {{ pub.contenu|linebreaksbr }}
     </div>
     {% if pub.fichier %}
     <div class="mb-2">
@@ -32,4 +33,34 @@
             {% if tag.strip %}<span class="bg-blue-700/30 text-blue-200 px-2 py-1 rounded text-xs font-semibold">#{{ tag }}</span>{% endif %}
         {% endfor %}
     </div>
+    <!-- Bouton commentaires -->
+    <div class="mt-4">
+        <button 
+            type="button"
+            class="toggle-comments-btn flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-bold px-4 py-2 rounded-lg shadow-lg transition duration-200 focus:outline-none focus:ring-2 focus:ring-green-400"
+            onclick="toggleComments('{{ pub.pk }}')"
+        >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2v-8a2 2 0 012-2h2m2-4h4a2 2 0 012 2v4H7V6a2 2 0 012-2z" />
+            </svg>
+            Commentaires
+        </button>
+    </div>
+    <!-- Bloc commentaires caché/affiché dynamiquement -->
+    <div id="comments-section-{{ pub.pk }}" class="mt-4 bg-[#181f36] rounded-xl p-4 hidden">
+        <div id="comments-list-{{ pub.pk }}">
+            {% for commentaire in pub.commentaires.all %}
+                {% include 'core/partials/commentaire_item.html' with commentaire=commentaire user=user %}
+            {% endfor %}
+        </div>
+        {% include 'core/partials/commentaire_form.html' with form=pub.commentaire_form pub=pub action_url=pub.commentaire_action_url %}
+    </div>
 </div>
+<script>
+function toggleComments(pubId) {
+    const section = document.getElementById('comments-section-' + pubId);
+    if (section) {
+        section.classList.toggle('hidden');
+    }
+}
+</script>

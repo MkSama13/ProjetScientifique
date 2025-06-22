@@ -77,9 +77,9 @@
             }
         }
     });
-    // Fade out sur suppression d'une publication
+    // Fade out sur suppression d'une publication ou d'un commentaire
     document.body.addEventListener('htmx:beforeSwap', function(evt) {
-        if (evt.detail.xhr && evt.detail.xhr.status === 204 && evt.target.classList.contains('publication-card')) {
+        if (evt.detail.xhr && evt.detail.xhr.status === 204 && (evt.target.classList.contains('publication-card') || evt.target.classList.contains('commentaire-item'))) {
             evt.detail.shouldSwap = false;
             evt.target.style.transition = 'opacity 0.4s';
             evt.target.style.opacity = 0;

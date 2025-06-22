@@ -34,3 +34,16 @@ class Publication(models.Model):
 
     def __str__(self):
         return f"{self.titre} par {self.auteur}"
+
+# Modèle pour les commentaires
+class Commentaire(models.Model):
+    publication = models.ForeignKey(Publication, on_delete=models.CASCADE, related_name='commentaires')
+    auteur = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    contenu = models.TextField(max_length=500)
+    date_commentaire = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['date_commentaire']
+
+    def __str__(self):
+        return f"Commentaire de {self.auteur} sur {self.publication}"
