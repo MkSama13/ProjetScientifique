@@ -62,13 +62,25 @@
         <div class="mb-2 text-white text-base whitespace-pre-line break-words">
             {{ pub.contenu|linebreaksbr }}
         </div>
+        {% if pub.images.all %}
+        <div class="mb-3 mt-2 rounded-2xl overflow-hidden border border-blue-400/30 bg-[#181f36]/80 flex flex-wrap items-center justify-center gap-2"
+             style="padding: 0.5rem; background: #181f36cc;">
+            {% for image in pub.images.all %}
+                <img src="{{ image.image.url }}"
+                     alt="Image publication"
+                     class="object-contain rounded-xl border-2 border-white shadow-md transition-transform duration-200 hover:scale-105 cursor-pointer"
+                     style="max-width: 100%; max-height: 350px; width: auto; height: auto; display: block; background: #fff; margin: 0 auto;"
+                     onclick="openImageModal('{{ image.image.url }}')" />
+            {% endfor %}
+        </div>
+        {% endif %}
         {% if pub.fichier and pub.fichier.url %}
         <div class="mb-3 mt-2 rounded-2xl overflow-hidden border border-blue-400/30 bg-[#181f36]/80 flex items-center justify-center min-h-[180px]">
             {% with file_url=pub.fichier.url|lower %}
                 {% if file_url|slice:'-4:' == '.pdf' %}
-                    <a href="{{ pub.fichier.url }}" target="_blank" class="text-blue-400 underline hover:text-blue-200 transition block w-full text-center py-8">Voir le fichier PDF joint</a>
+                    <a href="{{ pub.fichier.url }}" target="_blank" rel="noopener" class="text-blue-400 underline hover:text-blue-200 transition block w-full text-center py-8 cursor-pointer">Voir le fichier PDF joint</a>
                 {% else %}
-                    <img src="{{ pub.fichier.url }}" alt="Fichier joint" class="w-auto max-h-72 object-contain object-center rounded-2xl border-0" style="max-width:100%;display:block;" onerror="this.style.display='none'" />
+                    <img src="{{ pub.fichier.url }}" alt="Fichier joint" class="w-auto max-h-72 object-contain object-center rounded-2xl border-0 cursor-pointer" style="max-width:100%;display:block;" onerror="this.style.display='none'" onclick="openImageModal('{{ pub.fichier.url }}')" />
                 {% endif %}
             {% endwith %}
         </div>
@@ -104,6 +116,11 @@
                 {% include 'core/partials/commentaire_form.html' with form=pub.commentaire_form pub=pub action_url=pub.commentaire_action_url %}
             </div>
         </div>
+    </div>
+    <!-- Modal image pop-up -->
+    <div id="image-modal" class="fixed inset-0 z-50 items-center justify-center bg-black/70 backdrop-blur-sm" style="display:none;">
+        <span class="absolute top-4 right-8 text-white text-4xl font-bold cursor-pointer z-60" onclick="closeImageModal()">&times;</span>
+        <img id="image-modal-img" src="" alt="Image agrandie" class="max-w-3xl max-h-[80vh] rounded-2xl border-4 border-white shadow-2xl bg-white" style="object-fit:contain;" />
     </div>
 </div>
 <script>
@@ -141,6 +158,21 @@ function closeCommentsModal(pubId) {
     document.body.classList.remove('overflow-hidden');
 }
 
+function openImageModal(url) {
+    const modal = document.getElementById('image-modal');
+    const img = document.getElementById('image-modal-img');
+    img.src = url;
+    modal.style.display = 'flex';
+    document.body.classList.add('overflow-hidden');
+}
+function closeImageModal() {
+    const modal = document.getElementById('image-modal');
+    const img = document.getElementById('image-modal-img');
+    img.src = '';
+    modal.style.display = 'none';
+    document.body.classList.remove('overflow-hidden');
+}
+
 // Met à jour dynamiquement le nombre de commentaires après ajout/suppression
 if (window.htmx) {
     document.body.addEventListener('htmx:afterSwap', function(evt) {
@@ -171,5 +203,28 @@ body.overflow-hidden {
     .publication-card { padding: 0 !important; }
     .publication-card > .px-6 { padding-left: 1rem !important; padding-right: 1rem !important; }
     .publication-card > .pb-6 { padding-bottom: 1rem !important; }
+}
+.publication-card .mb-3.mt-2 img {
+    max-width: 100%;
+    height: auto;
+    object-fit: contain;
+    background: #fff;
+    margin: 0 auto;
+    display: block;
+}
+.publication-card .mb-3.mt-2 {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    background: #181f36cc;
+    padding: 0.5rem;
+}
+#image-modal {
+    display: none;
+    align-items: center;
+    justify-content: center;
 }
 </style>

@@ -1,14 +1,26 @@
+<!--
+    Partial : commentaire_item.html
+    Affiche un commentaire et ses réponses associées.
+    - Affiche l'auteur, la date, le contenu du commentaire.
+    - Permet de répondre à un commentaire (formulaire dynamique).
+    - Permet à l'auteur de supprimer son commentaire (HTMX).
+    - Affiche récursivement les réponses via le partial reponse_item.html.
+-->
 <div id="comment-{{ commentaire.pk }}" class="commentaire-item flex flex-col gap-1 mb-3 group">
     <div class="flex items-start gap-3">
         <div class="flex-1">
+            <!-- Auteur et date du commentaire -->
             <span class="font-semibold text-blue-300">{{ commentaire.auteur.get_full_name|default:commentaire.auteur.username }}</span>
             <span class="text-xs text-gray-400 ml-2">{{ commentaire.date_commentaire|date:'d/m/Y H:i' }}</span>
+            <!-- Contenu du commentaire -->
             <p class="text-white mt-1">{{ commentaire.contenu }}</p>
         </div>
     </div>
     <div class="ml-8 flex items-center gap-2">
+        <!-- Lien pour afficher le formulaire de réponse -->
         <span class="text-blue-400 text-xs font-semibold cursor-pointer hover:underline" onclick="toggleReponseForm({{ commentaire.pk }})">Répondre</span>
         {% if commentaire.auteur == user %}
+        <!-- Suppression du commentaire (HTMX) -->
         <form method="POST" hx-post="{% url 'delete_commentaire' commentaire.pk %}" hx-target="#comment-{{ commentaire.pk }}" hx-swap="outerHTML" class="inline">
             {% csrf_token %}
             <button type="submit" class="text-red-400 text-xs font-semibold cursor-pointer hover:underline bg-transparent border-0 p-0" style="background:none;">Supprimer</button>
@@ -16,6 +28,7 @@
         {% endif %}
     </div>
     <div class="ml-8">
+        <!-- Formulaire de réponse (affiché dynamiquement) -->
         <div id="reponse-form-{{ commentaire.pk }}" class="hidden mt-1">
             <form method="post" hx-post="{% url 'add_reponse' commentaire.pk %}" hx-target="#reponses-list-{{ commentaire.pk }}" hx-swap="afterbegin" class="flex gap-2 items-start">
                 {% csrf_token %}
@@ -23,6 +36,7 @@
                 <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-3 py-1 rounded-lg text-xs">Publier</button>
             </form>
         </div>
+        <!-- Affichage des réponses associées -->
         <div id="reponses-list-{{ commentaire.pk }}">
             {% for reponse in commentaire.reponses.all %}
                 {% include 'core/partials/reponse_item.html' with reponse=reponse user=user %}
@@ -31,6 +45,7 @@
     </div>
 </div>
 <script>
+// Affiche/masque dynamiquement le formulaire de réponse à un commentaire
 function toggleReponseForm(commentaireId) {
     const form = document.getElementById('reponse-form-' + commentaireId);
     if (form) form.classList.toggle('hidden');

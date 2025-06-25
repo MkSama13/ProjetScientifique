@@ -163,6 +163,10 @@ STATIC_URL = 'static/'
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 
+# Gestion des fichiers médias (images, fichiers uploadés)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'publications'
+
 # Type de champ clé primaire par défaut
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 

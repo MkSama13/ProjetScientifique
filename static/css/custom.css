@@ -1,3 +1,10 @@
+/*
+    Fichier : custom.css
+    Styles personnalisés pour la plateforme d'échange scientifique ISPT/Likasi.
+    - Utilisé pour surcharger ou compléter les styles Tailwind/DaisyUI.
+    - Exemple : bloc Activité & Notifications à taille fixe et scrollable.
+*/
+
 /* Custom styles for fixed size Activité & Notifications block */
 .fixed-activite-notifications {
     background: transparent !important;

@@ -1,0 +1,107 @@
+<!--
+    Template principal : publications.html
+    Affiche la page d'accueil de l'espace d'échange scientifique entre étudiants.
+    - Sidebar gauche : informations utilisateur et navigation (profil, notifications, déconnexion)
+    - Contenu principal : titre, slogan, illustration, liste des publications de tous les étudiants
+    - Utilise le partial publication_card.html pour chaque publication
+    - Affiche un message si aucune publication n'est trouvée
+    - Styles et animations personnalisés en bas de page
+-->
+{% extends 'core/base.html' %}
+{% load static %}
+{% block content %}
+<div class="container mx-auto px-4 py-8 flex flex-col lg:flex-row gap-8">
+    <!-- Sidebar gauche : informations utilisateur et navigation -->
+    <aside class="w-full lg:w-72 min-h-[500px] bg-transparent border border-transparent rounded-2xl shadow-none p-6 flex flex-col gap-6 sticky top-28 mb-8 lg:mb-0">
+        <!-- Informations utilisateur (nom, département, promotion) -->
+        <div class="mb-4 flex flex-col items-start justify-center gap-1 p-0 rounded-none border-none bg-transparent shadow-none">
+            <span class="font-sans text-base font-bold text-white tracking-normal leading-tight">{{ user.get_full_name|default:user.username }}</span>
+            <span class="font-sans text-sm font-semibold text-gray-400 tracking-normal leading-tight">
+                {% if user.matricule %}
+                    {% if user.matricule|slice:':4' == 'INFO' %}DEPARTEMENT : INFORMATIQUE{% elif user.matricule|slice:':2' == 'EQ' %}DEPARTEMENT : ELECTRONIQUE{% elif user.matricule|slice:':3' == 'ETT' %}DEPARTEMENT : ELECTRICITE{% else %}Département : -{% endif %}
+                {% else %}Département : -{% endif %}
+            </span>
+            <span class="font-sans text-sm font-semibold text-gray-400 tracking-normal leading-tight uppercase">
+                {% if user.matricule %}
+                    {% if user.matricule|slice:':4' == 'INFO' %}PROMOTION : BAC4{% elif user.matricule|slice:':2' == 'EQ' %}PROMOTION : BAC4{% elif user.matricule|slice:':3' == 'ETT' %}PROMOTION : BAC4{% else %}-{% endif %}
+                {% else %}-{% endif %}
+            </span>
+        </div>
+        <!-- Menu de navigation -->
+        <div class="bg-transparent">
+            <div class="flex items-center gap-3 mb-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-9 w-9 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5zm0 7v-7" />
+                </svg>
+                <span class="text-2xl font-extrabold text-white">Menu</span>
+            </div>
+            <nav class="bg-transparent" style="pointer-events: auto;">
+                <ul class="flex flex-col gap-2 mt-2 bg-transparent">
+                    <li>
+                        <!-- Lien vers le tableau de bord étudiant -->
+                        <a class="menu-etudiant-link flex items-center gap-2 px-3 py-2 rounded-lg text-white font-semibold transition cursor-pointer hover:bg-blue-700/30 bg-transparent" href="{% url 'dashboard' %}">
+                            <svg xmlns='http://www.w3.org/2000/svg' class='h-4 w-4 text-green-400' fill='none' viewBox='0 0 24 24' stroke='currentColor'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 11H5m7-7v14'/></svg>
+                            Mon profil
+                        </a>
+                    </li>
+                    <li>
+                        <!-- Lien notifications (à compléter si besoin) -->
+                        <a class="menu-etudiant-link flex items-center gap-2 px-3 py-2 rounded-lg text-white font-semibold transition cursor-pointer hover:bg-blue-700/30 bg-transparent" href="#">
+                            <svg xmlns='http://www.w3.org/2000/svg' class='h-4 w-4 text-pink-400' fill='none' viewBox='0 0 24 24' stroke='currentColor'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V4a2 2 0 10-4 0v1.341C7.67 7.165 6 9.388 6 12v2.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9'/></svg>
+                            Notifications
+                        </a>
+                    </li>
+                    <li>
+                        <!-- Déconnexion -->
+                        <form method="post" action="{% url 'account_logout' %}" class="mt-2">
+                            {% csrf_token %}
+                            <button type="submit" class="px-5 py-2 rounded-xl font-bold bg-red-600 text-white shadow-lg hover:bg-red-700 transition-transform duration-200 hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-red-400">
+                                Déconnexion
+                            </button>
+                        </form>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </aside>
+    <!-- Contenu principal : liste des publications -->
+    <main class="flex-1">
+        <!-- Titre de la page -->
+        <h1 class="text-4xl font-extrabold text-blue-400 text-center mb-10 drop-in">Espace d'échange scientifique entre étudiants</h1>
+        <!-- Slogan et illustration -->
+        <div class="flex flex-col items-center mb-8">
+            <div class="rounded-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-400 p-2 shadow-xl mb-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5zm0 7v-7" />
+                </svg>
+            </div>
+            <p class="text-lg text-white font-semibold text-center max-w-2xl">Partagez vos idées, posez vos questions, commentez les publications et échangez autour de la science et de la vie étudiante !</p>
+        </div>
+        <!-- Liste des publications de tous les étudiants -->
+        <div class="max-w-5xl w-full mx-auto space-y-8">
+            {% for pub in publications %}
+                {% include 'core/partials/publication_card.html' with pub=pub user=user commentaire_form=pub.commentaire_form commentaire_action_url=pub.commentaire_action_url %}
+            {% empty %}
+            <p class="text-gray-400 text-center">Aucune publication trouvée.</p>
+            {% endfor %}
+        </div>
+    </main>
+</div>
+<!-- Styles et animations pour l'affichage -->
+<style>
+    .drop-in {
+        animation: dropIn 0.7s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+    @keyframes dropIn {
+        0% { opacity: 0; transform: translateY(-40px) scale(0.95); }
+        100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .animate-fadeInRight {
+        animation: fadeInRight 0.7s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+    @keyframes fadeInRight {
+        from { opacity: 0; transform: translateX(40px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+</style>
+{% endblock %}

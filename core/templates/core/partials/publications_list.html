@@ -1,3 +1,8 @@
+{#
+    Partial : publications_list.html
+    Affiche la liste des publications en utilisant le partial publication_card.html pour chaque publication.
+    Boucle sur la variable publications passée dans le contexte.
+#}
 {% for pub in publications %}
     {% include 'core/partials/publication_card.html' with pub=pub user=user commentaire_form=pub.commentaire_form commentaire_action_url=pub.commentaire_action_url %}
 {% endfor %}

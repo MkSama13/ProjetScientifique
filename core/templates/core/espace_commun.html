@@ -1,14 +1,5 @@
-{% extends 'core/base.html' %}
-{% load static %}
-{% block content %}
-<div class="container mx-auto px-4 py-8 pt-24">
-    <h1 class="text-4xl font-bold text-blue-300 text-center mb-10">Espace Commun des Publications</h1>
-    <div class="flex flex-col gap-8 max-w-4xl mx-auto">
-        {% for pub in publications %}
-            {% include 'core/partials/publication_card.html' with pub=pub user=user commentaire_form=pub.commentaire_form commentaire_action_url=pub.commentaire_action_url %}
-        {% empty %}
-            <div class="text-center text-gray-400 text-lg">Aucune publication n'a encore été partagée dans l'espace commun.</div>
-        {% endfor %}
-    </div>
-</div>
-{% endblock %}
+<!--
+    Template principal : espace_commun.html
+    (Ce template est actuellement vide. À compléter selon les besoins du projet.)
+    Utilisez ce fichier pour afficher un espace de discussion ou d'annonces commun à tous les utilisateurs.
+-->

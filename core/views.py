@@ -4,7 +4,7 @@ from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from allauth.account.views import SignupView
 from .forms import CustomSignupForm, PublicationForm, CommentaireForm, ReponseForm, CommuniqueForm
-from .models import Publication, Commentaire, Reponse, Communique
+from .models import Publication, Commentaire, Reponse, Communique, PublicationImage
 from django.views.decorators.http import require_GET, require_POST
 from django.http import JsonResponse
 from django.contrib.auth import get_user_model
@@ -12,12 +12,22 @@ from django.db.models import Count, Q
 from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
 
-# Create your views here.
+# ==========================
+# Vues principales de l'application
+# ==========================
+
 def home(request):
+    """
+    Vue d'accueil de la plateforme.
+    """
     return render(request, 'core/home.html')
 
 @login_required
 def dashboard(request):
+    """
+    Tableau de bord étudiant : création et affichage des publications de l'utilisateur connecté.
+    Gère aussi l'ajout d'images multiples à une publication.
+    """
     is_htmx = request.headers.get('HX-Request') == 'true'
     if request.method == 'POST':
         form = PublicationForm(request.POST, request.FILES)
@@ -25,23 +35,26 @@ def dashboard(request):
             publication = form.save(commit=False)
             publication.auteur = request.user
             publication.save()
+            # Gestion des images multiples
+            images = request.FILES.getlist('images')
+            for img in images:
+                PublicationImage.objects.create(publication=publication, image=img)
             if is_htmx:
                 return render(request, 'core/partials/publication_card.html', {'pub': publication, 'user': request.user})
             return HttpResponseRedirect(reverse('dashboard'))
     else:
         form = PublicationForm()
-    # Afficher uniquement les publications de l'utilisateur connecté
+    # Publications de l'utilisateur
     publications = Publication.objects.filter(auteur=request.user)
     commentaire_form = CommentaireForm()
     for pub in publications:
         pub.commentaire_form = commentaire_form
         pub.commentaire_action_url = reverse('add_commentaire', args=[pub.pk])
     # Statistiques utilisateur
-    user_publications = publications
-    nb_publications = user_publications.count()
+    nb_publications = publications.count()
     nb_commentaires = Commentaire.objects.filter(auteur=request.user).count()
-    nb_fichiers = user_publications.exclude(fichier='').exclude(fichier=None).count()
-    # Activité et notifications (exemple simple)
+    nb_fichiers = publications.exclude(fichier='').exclude(fichier=None).count()
+    # Activité et notifications récentes
     activites = Commentaire.objects.filter(auteur=request.user).order_by('-date_commentaire')[:10]
     notifications = Commentaire.objects.filter(publication__auteur=request.user).exclude(auteur=request.user).order_by('-date_commentaire')[:10]
     if is_htmx:
@@ -216,4 +229,15 @@ def bloc_statistiques(request):
         'nb_publications': nb_publications,
         'nb_commentaires': nb_commentaires,
         'nb_fichiers': nb_fichiers,
+    })
+
+def publications_list(request):
+    publications = Publication.objects.all().order_by('-date_pub')
+    commentaire_form = CommentaireForm()
+    for pub in publications:
+        pub.commentaire_form = commentaire_form
+        pub.commentaire_action_url = reverse('add_commentaire', args=[pub.pk])
+    return render(request, 'core/publications.html', {
+        'publications': publications,
+        'user': request.user,
     })

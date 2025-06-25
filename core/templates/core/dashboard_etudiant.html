@@ -1,3 +1,13 @@
+<!--
+    Template principal : dashboard_etudiant.html
+    Tableau de bord de l'étudiant :
+    - Navbar personnalisée avec recherche et déconnexion
+    - Sidebar gauche : infos utilisateur et menu étudiant
+    - Main content : bouton création de publication, liste des publications, notifications, statistiques, etc.
+    - Utilise les partials pour publication, commentaires, statistiques, etc.
+    - Utilisation d'Alpine.js et HTMX pour l'interactivité
+    - Structure claire et sections bien séparées 
+    -->
 {% extends 'core/base.html' %}
 {% load static %}
 {% block navbar %}
@@ -59,7 +69,7 @@
     <nav class="bg-transparent" style="pointer-events: auto;">
         <ul class="flex flex-col gap-2 mt-2 bg-transparent">
             <li>
-                <a class="menu-etudiant-link flex items-center gap-2 px-3 py-2 rounded-lg text-white font-semibold transition cursor-pointer hover:bg-blue-700/30 bg-transparent" href="#">
+                <a class="menu-etudiant-link flex items-center gap-2 px-3 py-2 rounded-lg text-white font-semibold transition cursor-pointer hover:bg-blue-700/30 bg-transparent" href="{% url 'publications_list' %}">
                     <svg xmlns='http://www.w3.org/2000/svg' class='h-4 w-4 text-green-400' fill='none' viewBox='0 0 24 24' stroke='currentColor'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 11H5m7-7v14'/></svg>
                     Nouvelle publication
                 </a>
@@ -135,6 +145,11 @@
         <label for="fichier" class="block text-white font-semibold mb-1">Importer une photo ou PDF</label>
         <input type="file" id="fichier" name="fichier" accept="image/*,application/pdf" class="block w-full text-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700 transition file:transition-transform file:duration-200" />
         <span class="text-xs text-gray-400 mt-1 block">Formats acceptés : images (jpg, png, etc.) et PDF.</span>
+    </div>
+    <div>
+        <label for="images" class="block text-white font-semibold mb-1">Ajouter des images (plusieurs possibles)</label>
+        <input type="file" id="images" name="images" accept="image/*" multiple class="block w-full text-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700 transition file:transition-transform file:duration-200" />
+        <span class="text-xs text-gray-400 mt-1 block">Vous pouvez sélectionner plusieurs images.</span>
     </div>
     <div>
         <label for="tags" class="block text-white font-semibold mb-1">Tags</label>

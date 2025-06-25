@@ -1,3 +1,9 @@
+/*
+    Fichier : input.css
+    Point d'entrée Tailwind CSS pour la compilation des styles personnalisés du projet.
+    - Inclut les bases, composants et utilitaires Tailwind.
+    - À compléter si besoin de classes personnalisées.
+*/
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

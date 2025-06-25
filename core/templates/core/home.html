@@ -1,3 +1,12 @@
+<!--
+    Template principal : home.html
+    Page d'accueil publique de la plateforme d'échange scientifique ISPT/Likasi.
+    - Navbar simple avec lien vers la section "À propos"
+    - Présentation de la plateforme, slogan, boutons Connexion/Inscription
+    - Section "À propos" détaillée
+    - Animations d'apparition et scroll vers la section
+    - Script JS commenté pour l'UX
+-->
 {% extends 'core/base.html' %}
 
 {% block navbar %}
@@ -34,7 +43,7 @@
     </ul>
 </section>
 <script>
-// Animation fade-in
+// Animation fade-in progressive sur les titres et paragraphes
 (function() {
   const fadeEls = document.querySelectorAll('.animate-fade-in');
   fadeEls.forEach((el, i) => {

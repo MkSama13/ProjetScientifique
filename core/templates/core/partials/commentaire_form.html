@@ -1,3 +1,10 @@
+{#
+    Partial : commentaire_form.html
+    Formulaire d'ajout de commentaire sous une publication.
+    - Utilise le formulaire Django passé dans le contexte.
+    - Stylisé avec Tailwind CSS.
+    - Utilise HTMX pour l'envoi asynchrone et l'insertion dynamique du commentaire.
+#}
 {% load static %}
 <form method="post" hx-post="{{ action_url }}" hx-target="#comments-list-{{ pub.pk }}" hx-swap="afterbegin" class="flex gap-2 items-start mt-2 group/comment" enctype="multipart/form-data">
     {% csrf_token %}
@@ -10,7 +17,7 @@
     </button>
 </form>
 <style>
-    /* Champ commentaire dans le thème */
+    /* Champ commentaire dans le thème (personnalisation du textarea) */
     .group\/comment textarea {
         background: #181f36 !important;
         color: #fff !important;

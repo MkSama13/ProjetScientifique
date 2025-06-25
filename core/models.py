@@ -3,9 +3,10 @@ from django.db import models
 from django.core.validators import RegexValidator
 from django.conf import settings
 
-# Modèle utilisateur personnalisé étendant AbstractUser
+# ==========================
+# Modèle utilisateur personnalisé
+# ==========================
 class CustomUser(AbstractUser):
-    # Promotion de l'étudiant
     promotion = models.CharField(max_length=100)
     matricule = models.CharField(max_length=20, blank=True, help_text="Les matricules commencent par INFO, EQ, ETT...")
     username = models.CharField(
@@ -18,7 +19,9 @@ class CustomUser(AbstractUser):
         help_text="Requis. 150 caractères ou moins. Lettres, chiffres, espaces et @/./+/-/_ seulement."
     )
 
-# Modèle pour les publications
+# ==========================
+# Modèle Publication (post étudiant)
+# ==========================
 class Publication(models.Model):
     auteur = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='publications')
     titre = models.CharField(max_length=120)
@@ -35,7 +38,20 @@ class Publication(models.Model):
     def __str__(self):
         return f"{self.titre} par {self.auteur}"
 
+# ==========================
+# Modèle pour les images associées à une publication
+# ==========================
+class PublicationImage(models.Model):
+    publication = models.ForeignKey(Publication, on_delete=models.CASCADE, related_name='images')
+    image = models.ImageField(upload_to='publications/images/')
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Image pour {self.publication.titre}"
+
+# ==========================
 # Modèle pour les commentaires
+# ==========================
 class Commentaire(models.Model):
     publication = models.ForeignKey(Publication, on_delete=models.CASCADE, related_name='commentaires')
     auteur = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -48,7 +64,9 @@ class Commentaire(models.Model):
     def __str__(self):
         return f"Commentaire de {self.auteur} sur {self.publication}"
 
+# ==========================
 # Modèle pour les réponses aux commentaires
+# ==========================
 class Reponse(models.Model):
     commentaire = models.ForeignKey(Commentaire, on_delete=models.CASCADE, related_name='reponses')
     auteur = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -61,7 +79,9 @@ class Reponse(models.Model):
     def __str__(self):
         return f"Réponse de {self.auteur} au commentaire {self.commentaire_id}"
 
-# Modèle pour les communiqués
+# ==========================
+# Modèle pour les communiqués (annonces admin)
+# ==========================
 class Communique(models.Model):
     auteur = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='communiques')
     titre = models.CharField(max_length=120)

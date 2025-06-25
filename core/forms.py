@@ -2,13 +2,18 @@ from allauth.account.forms import SignupForm, LoginForm
 from django import forms
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
-import re
 from .models import Publication, Commentaire, Reponse, Communique
 
 User = get_user_model()
 
-# Formulaire d'inscription personnalisé avec champs supplémentaires
+# ==========================
+# Formulaires personnalisés pour l'application
+# ==========================
+
 class CustomSignupForm(SignupForm):
+    """
+    Formulaire d'inscription personnalisé avec champs supplémentaires (promotion, matricule).
+    """
     promotion = forms.CharField(max_length=100, label='Promotion')
     matricule = forms.CharField(
         max_length=20,
@@ -39,8 +44,10 @@ class CustomSignupForm(SignupForm):
         user.save()
         return user
 
-# Formulaire de connexion personnalisé avec confirmation du mot de passe
 class CustomLoginForm(LoginForm):
+    """
+    Formulaire de connexion personnalisé avec confirmation du mot de passe.
+    """
     full_name = forms.CharField(max_length=150, label='Nom d\'utilisateur')
     password_confirm = forms.CharField(widget=forms.PasswordInput, label='Confirmation du mot de passe')
 
@@ -60,6 +67,9 @@ class CustomLoginForm(LoginForm):
         return cleaned_data
 
 class PublicationForm(forms.ModelForm):
+    """
+    Formulaire de création/édition de publication (post étudiant).
+    """
     class Meta:
         model = Publication
         fields = ['titre', 'contenu', 'departement', 'promotion', 'fichier', 'tags']
@@ -73,6 +83,9 @@ class PublicationForm(forms.ModelForm):
         }
 
 class CommentaireForm(forms.ModelForm):
+    """
+    Formulaire pour ajouter un commentaire à une publication.
+    """
     class Meta:
         model = Commentaire
         fields = ['contenu']
@@ -86,6 +99,9 @@ class CommentaireForm(forms.ModelForm):
         }
 
 class ReponseForm(forms.ModelForm):
+    """
+    Formulaire pour répondre à un commentaire.
+    """
     class Meta:
         model = Reponse
         fields = ['contenu']
@@ -99,6 +115,9 @@ class ReponseForm(forms.ModelForm):
         }
 
 class CommuniqueForm(forms.ModelForm):
+    """
+    Formulaire pour la création d'un communiqué (annonce admin).
+    """
     class Meta:
         model = Communique
         fields = ['titre', 'contenu', 'fichier']
