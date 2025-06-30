@@ -6,17 +6,17 @@
     - Permet à l'auteur de supprimer son commentaire (HTMX).
     - Affiche récursivement les réponses via le partial reponse_item.html.
 -->
-<div id="comment-{{ commentaire.pk }}" class="commentaire-item flex flex-col gap-1 mb-3 group">
+<div id="comment-{{ commentaire.pk }}" class="commentaire-item flex flex-col gap-1 mb-3 group bg-[#181f36]/80 rounded-xl p-3 border border-blue-400/20 shadow-sm">
     <div class="flex items-start gap-3">
         <div class="flex-1">
             <!-- Auteur et date du commentaire -->
             <span class="font-semibold text-blue-300">{{ commentaire.auteur.get_full_name|default:commentaire.auteur.username }}</span>
             <span class="text-xs text-gray-400 ml-2">{{ commentaire.date_commentaire|date:'d/m/Y H:i' }}</span>
             <!-- Contenu du commentaire -->
-            <p class="text-white mt-1">{{ commentaire.contenu }}</p>
+            <p class="text-white mt-1 break-words">{{ commentaire.contenu }}</p>
         </div>
     </div>
-    <div class="ml-8 flex items-center gap-2">
+    <div class="ml-8 flex items-center gap-2 mt-1">
         <!-- Lien pour afficher le formulaire de réponse -->
         <span class="text-blue-400 text-xs font-semibold cursor-pointer hover:underline" onclick="toggleReponseForm({{ commentaire.pk }})">Répondre</span>
         {% if commentaire.auteur == user %}
@@ -44,6 +44,18 @@
         </div>
     </div>
 </div>
+<style>
+.commentaire-item {
+    transition: box-shadow 0.2s, border-color 0.2s;
+}
+.commentaire-item:hover {
+    box-shadow: 0 4px 24px 0 #2563eb22;
+    border-color: #2563eb66;
+}
+.commentaire-item .text-white {
+    word-break: break-word;
+}
+</style>
 <script>
 // Affiche/masque dynamiquement le formulaire de réponse à un commentaire
 function toggleReponseForm(commentaireId) {

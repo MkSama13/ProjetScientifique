@@ -63,16 +63,47 @@
             {{ pub.contenu|linebreaksbr }}
         </div>
         {% if pub.images.all %}
-        <div class="mb-3 mt-2 rounded-2xl overflow-hidden border border-blue-400/30 bg-[#181f36]/80 flex flex-wrap items-center justify-center gap-2"
-             style="padding: 0.5rem; background: #181f36cc;">
-            {% for image in pub.images.all %}
-                <img src="{{ image.image.url }}"
-                     alt="Image publication"
-                     class="object-contain rounded-xl border-2 border-white shadow-md transition-transform duration-200 hover:scale-105 cursor-pointer"
-                     style="max-width: 100%; max-height: 350px; width: auto; height: auto; display: block; background: #fff; margin: 0 auto;"
-                     onclick="openImageModal('{{ image.image.url }}')" />
+        {% with images=pub.images.all %}
+        {% if images|length == 4 %}
+        <div class="pub-4-grid mb-3 mt-2 w-full">
+            <div class="pub-4-grid-top">
+                <img src="{{ images.0.image.url }}" alt="Image publication" class="object-cover w-full h-full rounded-t-2xl rounded-b-none transition-transform duration-200 hover:scale-105 cursor-pointer" style="height: 180px;" onclick="openImageModal('{{ images.0.image.url }}')" />
+            </div>
+            <div class="pub-4-grid-bottom">
+                <img src="{{ images.1.image.url }}" alt="Image publication" class="object-cover h-full w-full rounded-bl-2xl rounded-tr-none rounded-t-none transition-transform duration-200 hover:scale-105 cursor-pointer border-r-4 border-[#232a36]" style="height: 100px; width: 33.3333%; object-fit: cover; display: block;" onclick="openImageModal('{{ images.1.image.url }}')" />
+                <img src="{{ images.2.image.url }}" alt="Image publication" class="object-cover h-full w-full rounded-none transition-transform duration-200 hover:scale-105 cursor-pointer border-r-4 border-[#232a36]" style="height: 100px; width: 33.3333%; object-fit: cover; display: block;" onclick="openImageModal('{{ images.2.image.url }}')" />
+                <img src="{{ images.3.image.url }}" alt="Image publication" class="object-cover h-full w-full rounded-br-2xl rounded-tl-none rounded-t-none transition-transform duration-200 hover:scale-105 cursor-pointer" style="height: 100px; width: 33.3333%; object-fit: cover; display: block;" onclick="openImageModal('{{ images.3.image.url }}')" />
+            </div>
+        </div>
+        {% elif images|length == 3 %}
+        <div class="pub-3-grid mb-3 mt-2 w-full">
+            <div class="pub-3-grid-top">
+                <img src="{{ images.0.image.url }}" alt="Image publication" class="object-cover w-full h-full rounded-t-2xl rounded-b-none transition-transform duration-200 hover:scale-105 cursor-pointer" style="height: 200px;" onclick="openImageModal('{{ images.0.image.url }}')" />
+            </div>
+            <div class="pub-3-grid-bottom">
+                <img src="{{ images.1.image.url }}" alt="Image publication" class="object-cover w-full h-full rounded-bl-2xl rounded-tr-none rounded-t-none transition-transform duration-200 hover:scale-105 cursor-pointer border-r-4 border-[#232a36]" style="height: 120px; width: 50%; object-fit: cover; display: block;" onclick="openImageModal('{{ images.1.image.url }}')" />
+                <img src="{{ images.2.image.url }}" alt="Image publication" class="object-cover w-full h-full rounded-br-2xl rounded-tl-none rounded-t-none transition-transform duration-200 hover:scale-105 cursor-pointer" style="height: 120px; width: 50%; object-fit: cover; display: block;" onclick="openImageModal('{{ images.2.image.url }}')" />
+            </div>
+        </div>
+        {% else %}
+        <div class="publication-images-grid-x mb-3 mt-2 w-full" style="background: none; border: none; border-radius: 0; overflow: visible;">
+            {% for image in images|slice:":4" %}
+                <div class="pub-image-x-wrapper relative group" style="background: none; border: none; border-radius: 0;">
+                    <img src="{{ image.image.url }}"
+                         alt="Image publication"
+                         class="object-cover w-full h-full transition-transform duration-200 hover:scale-105 cursor-pointer rounded-2xl"
+                         style="border-radius: 1rem;" 
+                         onclick="openImageModal('{{ image.image.url }}')" />
+                    {% if forloop.last and images|length > 4 %}
+                        <div class="absolute inset-0 bg-black/60 flex items-center justify-center rounded-2xl">
+                            <span class="text-white text-2xl font-bold">+{{ images|length|add:'-4' }}</span>
+                        </div>
+                    {% endif %}
+                </div>
             {% endfor %}
         </div>
+        {% endif %}
+        {% endwith %}
         {% endif %}
         {% if pub.fichier and pub.fichier.url %}
         <div class="mb-3 mt-2 rounded-2xl overflow-hidden border border-blue-400/30 bg-[#181f36]/80 flex items-center justify-center min-h-[180px]">
@@ -222,9 +253,204 @@ body.overflow-hidden {
     background: #181f36cc;
     padding: 0.5rem;
 }
+.publication-images-row {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+    margin: 0 auto;
+    background: none;
+    border-radius: 0;
+    overflow: visible;
+    position: relative;
+}
+.pub-image-row-wrapper {
+    width: 100%;
+    overflow: hidden;
+    background: none;
+    border-radius: 1rem;
+    border: none;
+}
+.pub-image-row-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 1rem;
+    transition: transform 0.2s;
+}
+.publication-images-grid-x {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(2, 160px);
+    gap: 2px;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    margin: 0 auto;
+    background: none !important;
+    border-radius: 0 !important;
+    border: none !important;
+    overflow: visible !important;
+    position: relative;
+}
+.pub-image-x-wrapper {
+    position: relative;
+    width: 100%;
+    height: 160px;
+    overflow: hidden;
+    background: none !important;
+    border-radius: 0 !important;
+    border: none !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.pub-image-x-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 0.75rem !important;
+    transition: transform 0.2s;
+}
+.pub-image-x-wrapper .absolute {
+    z-index: 2;
+}
+.publication-images-grid-x .pub-image-x-wrapper:first-child {
+    border-top-left-radius: 1rem;
+}
+.publication-images-grid-x .pub-image-x-wrapper:nth-child(2) {
+    border-top-right-radius: 1rem;
+}
+.publication-images-grid-x .pub-image-x-wrapper:nth-child(3) {
+    border-bottom-left-radius: 1rem;
+}
+.publication-images-grid-x .pub-image-x-wrapper:nth-child(4) {
+    border-bottom-right-radius: 1rem;
+}
+@media (max-width: 640px) {
+    .publication-images-grid-x {
+        grid-template-rows: repeat(2, 90px);
+    }
+    .pub-image-x-wrapper {
+        height: 90px;
+    }
+}
 #image-modal {
     display: none;
     align-items: center;
     justify-content: center;
+}
+.pub-3-grid {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    border-radius: 1rem;
+    overflow: hidden;
+}
+.pub-3-grid-top {
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+}
+.pub-3-grid-bottom {
+    display: flex;
+    width: 100%;
+    height: 120px;
+    gap: 0;
+}
+.pub-3-grid-bottom img {
+    width: 50%;
+    height: 100%;
+    object-fit: cover;
+}
+@media (max-width: 640px) {
+    .pub-3-grid-top { height: 120px; }
+    .pub-3-grid-bottom { height: 70px; }
+}
+.pub-4-grid {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    border-radius: 1rem;
+    overflow: hidden;
+}
+.pub-4-grid-top {
+    width: 100%;
+    height: 180px;
+    overflow: hidden;
+}
+.pub-4-grid-bottom {
+    display: flex;
+    width: 100%;
+    height: 100px;
+    gap: 0;
+}
+.pub-4-grid-bottom img {
+    width: 33.3333%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+@media (max-width: 640px) {
+    .pub-4-grid-top { height: 100px; }
+    .pub-4-grid-bottom { height: 60px; }
+}
+.pub-5-grid {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    height: 300px;
+    border-radius: 1rem;
+    overflow: hidden;
+    background: none;
+    margin: 0;
+    padding: 0;
+}
+.pub-5-grid-col {
+    display: flex;
+    flex-direction: column;
+    width: 50%;
+    height: 100%;
+    gap: 0;
+    margin: 0;
+    padding: 0;
+}
+.pub-5-grid-col-left img {
+    width: 100%;
+    height: 50%;
+    object-fit: cover;
+    display: block;
+    margin: 0;
+    padding: 0;
+}
+.pub-5-grid-col-right {
+    display: flex;
+    flex-direction: column;
+    width: 50%;
+    height: 100%;
+    justify-content: stretch;
+}
+.pub-5-grid-col-right img {
+    flex: 1 1 0;
+    min-height: 0;
+    max-height: none;
+    width: 100%;
+    object-fit: cover;
+    display: block;
+    margin: 0;
+    padding: 0;
+}
+@media (max-width: 640px) {
+    .pub-5-grid {
+        height: 180px;
+    }
+    .pub-5-grid-col-left img {
+        height: 50%;
+    }
+    .pub-5-grid-col-right img {
+        height: 33.3333%;
+    }
 }
 </style>
