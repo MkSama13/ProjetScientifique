@@ -64,25 +64,53 @@
         </div>
         {% if pub.images.all %}
         {% with images=pub.images.all %}
-        {% if images|length == 4 %}
-        <div class="pub-4-grid mb-3 mt-2 w-full">
-            <div class="pub-4-grid-top">
-                <img src="{{ images.0.image.url }}" alt="Image publication" class="object-cover w-full h-full rounded-t-2xl rounded-b-none transition-transform duration-200 hover:scale-105 cursor-pointer" style="height: 180px;" onclick="openImageModal('{{ images.0.image.url }}')" />
+        {% if images|length >= 4 %}
+        <div class="pub-4-grid-2col mb-3 mt-2 w-full" style="display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 4px; border-radius: 1rem; overflow: hidden; background: none;">
+            <div style="grid-row: 1 / 2; grid-column: 1 / 2;">
+                <img src="{{ images.0.image.url }}" alt="Image publication" class="object-cover w-full h-full transition-transform duration-200 hover:scale-105 cursor-pointer rounded-tl-2xl" style="aspect-ratio: 16 / 9; width: 100%; height: 100%; object-fit: cover; display: block; background: none;" onclick="openGalleryModal(0, {{ images|length }}, [{% for img in images %}'{{ img.image.url }}'{% if not forloop.last %}, {% endif %}{% endfor %}])" />
             </div>
-            <div class="pub-4-grid-bottom">
-                <img src="{{ images.1.image.url }}" alt="Image publication" class="object-cover h-full w-full rounded-bl-2xl rounded-tr-none rounded-t-none transition-transform duration-200 hover:scale-105 cursor-pointer border-r-4 border-[#232a36]" style="height: 100px; width: 33.3333%; object-fit: cover; display: block;" onclick="openImageModal('{{ images.1.image.url }}')" />
-                <img src="{{ images.2.image.url }}" alt="Image publication" class="object-cover h-full w-full rounded-none transition-transform duration-200 hover:scale-105 cursor-pointer border-r-4 border-[#232a36]" style="height: 100px; width: 33.3333%; object-fit: cover; display: block;" onclick="openImageModal('{{ images.2.image.url }}')" />
-                <img src="{{ images.3.image.url }}" alt="Image publication" class="object-cover h-full w-full rounded-br-2xl rounded-tl-none rounded-t-none transition-transform duration-200 hover:scale-105 cursor-pointer" style="height: 100px; width: 33.3333%; object-fit: cover; display: block;" onclick="openImageModal('{{ images.3.image.url }}')" />
+            <div style="grid-row: 2 / 3; grid-column: 1 / 2;">
+                <img src="{{ images.1.image.url }}" alt="Image publication" class="object-cover w-full h-full transition-transform duration-200 hover:scale-105 cursor-pointer rounded-bl-2xl" style="aspect-ratio: 16 / 9; width: 100%; height: 100%; object-fit: cover; display: block; background: none;" onclick="openGalleryModal(1, {{ images|length }}, [{% for img in images %}'{{ img.image.url }}'{% if not forloop.last %}, {% endif %}{% endfor %}])" />
+            </div>
+            <div style="grid-row: 1 / 2; grid-column: 2 / 3;">
+                <img src="{{ images.2.image.url }}" alt="Image publication" class="object-cover w-full h-full transition-transform duration-200 hover:scale-105 cursor-pointer rounded-tr-2xl" style="aspect-ratio: 16 / 9; width: 100%; height: 100%; object-fit: cover; display: block; background: none;" onclick="openGalleryModal(2, {{ images|length }}, [{% for img in images %}'{{ img.image.url }}'{% if not forloop.last %}, {% endif %}{% endfor %}])" />
+            </div>
+            <div style="grid-row: 2 / 3; grid-column: 2 / 3; position: relative;">
+                <img src="{{ images.3.image.url }}" alt="Image publication" class="object-cover w-full h-full transition-transform duration-200 hover:scale-105 cursor-pointer rounded-br-2xl" style="aspect-ratio: 16 / 9; width: 100%; height: 100%; object-fit: cover; display: block; background: none;" onclick="openGalleryModal(3, {{ images|length }}, [{% for img in images %}'{{ img.image.url }}'{% if not forloop.last %}, {% endif %}{% endfor %}])" />
+                {% if images|length > 4 %}
+                <div class="absolute inset-0 bg-black/60 flex items-center justify-center rounded-2xl cursor-pointer" onclick="openGalleryModal(3, {{ images|length }}, [{% for img in images %}'{{ img.image.url }}'{% if not forloop.last %}, {% endif %}{% endfor %}])">
+                    <span class="text-white text-2xl font-bold">+{{ images|length|add:'-4' }}</span>
+                </div>
+                {% endif %}
             </div>
         </div>
         {% elif images|length == 3 %}
-        <div class="pub-3-grid mb-3 mt-2 w-full">
-            <div class="pub-3-grid-top">
-                <img src="{{ images.0.image.url }}" alt="Image publication" class="object-cover w-full h-full rounded-t-2xl rounded-b-none transition-transform duration-200 hover:scale-105 cursor-pointer" style="height: 200px;" onclick="openImageModal('{{ images.0.image.url }}')" />
+        <div class="pub-3-mockup-layout mb-3 mt-2 w-full max-w-[540px]" style="border-radius: 1rem; overflow: hidden; background: none; margin: 0 auto;">
+            <div style="width: 100%; aspect-ratio: 2.2/0.7; overflow: hidden;">
+                <img src="{{ images.0.image.url }}" alt="Image publication" style="width: 100%; height: 100%; object-fit: cover; border-top-left-radius: 1rem; border-top-right-radius: 1rem; display: block; cursor:pointer;" class="transition-transform duration-200 hover:scale-105" onclick="openGalleryModal(0, {{ images|length }}, [{% for img in images %}'{{ img.image.url }}'{% if not forloop.last %}, {% endif %}{% endfor %}])" />
             </div>
-            <div class="pub-3-grid-bottom">
-                <img src="{{ images.1.image.url }}" alt="Image publication" class="object-cover w-full h-full rounded-bl-2xl rounded-tr-none rounded-t-none transition-transform duration-200 hover:scale-105 cursor-pointer border-r-4 border-[#232a36]" style="height: 120px; width: 50%; object-fit: cover; display: block;" onclick="openImageModal('{{ images.1.image.url }}')" />
-                <img src="{{ images.2.image.url }}" alt="Image publication" class="object-cover w-full h-full rounded-br-2xl rounded-tl-none rounded-t-none transition-transform duration-200 hover:scale-105 cursor-pointer" style="height: 120px; width: 50%; object-fit: cover; display: block;" onclick="openImageModal('{{ images.2.image.url }}')" />
+            <div style="display: flex; width: 100%; gap: 4px; margin-top: 4px;">
+                <div style="flex: 1 1 0; aspect-ratio: 1/0.7; overflow: hidden;">
+                    <img src="{{ images.1.image.url }}" alt="Image publication" style="width: 100%; height: 100%; object-fit: cover; border-bottom-left-radius: 1rem; display: block; cursor:pointer;" class="transition-transform duration-200 hover:scale-105" onclick="openGalleryModal(1, {{ images|length }}, [{% for img in images %}'{{ img.image.url }}'{% if not forloop.last %}, {% endif %}{% endfor %}])" />
+                </div>
+                <div style="flex: 1 1 0; aspect-ratio: 1/0.7; overflow: hidden;">
+                    <img src="{{ images.2.image.url }}" alt="Image publication" style="width: 100%; height: 100%; object-fit: cover; border-bottom-right-radius: 1rem; display: block; cursor:pointer;" class="transition-transform duration-200 hover:scale-105" onclick="openGalleryModal(2, {{ images|length }}, [{% for img in images %}'{{ img.image.url }}'{% if not forloop.last %}, {% endif %}{% endfor %}])" />
+                </div>
+            </div>
+        </div>
+        {% elif images|length == 2 %}
+        <div class="pub-2-custom-grid mb-3 mt-2 w-full" style="display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr; gap: 4px; aspect-ratio: 32/9; border-radius: 1rem; overflow: hidden; background: none;">
+            <div style="grid-row: 1 / 2; grid-column: 1 / 2;">
+                <img src="{{ images.0.image.url }}" alt="Image publication" class="object-cover w-full h-full rounded-l-2xl transition-transform duration-200 hover:scale-105 cursor-pointer" style="width: 100%; height: 100%; object-fit: cover; aspect-ratio: 16/9; background: none; display: block;" onclick="openGalleryModal(0, {{ images|length }}, [{% for img in images %}'{{ img.image.url }}'{% if not forloop.last %}, {% endif %}{% endfor %}])" />
+            </div>
+            <div style="grid-row: 1 / 2; grid-column: 2 / 3;">
+                <img src="{{ images.1.image.url }}" alt="Image publication" class="object-cover w-full h-full rounded-r-2xl transition-transform duration-200 hover:scale-105 cursor-pointer" style="width: 100%; height: 100%; object-fit: cover; aspect-ratio: 16/9; background: none; display: block;" onclick="openGalleryModal(1, {{ images|length }}, [{% for img in images %}'{{ img.image.url }}'{% if not forloop.last %}, {% endif %}{% endfor %}])" />
+            </div>
+        </div>
+        {% elif images|length == 1 %}
+        <div class="pub-1-custom-grid mb-3 mt-2 w-full" style="display: grid; grid-template-columns: 1fr; grid-template-rows: 1fr; border-radius: 1rem; overflow: hidden; background: none;">
+            <div style="grid-row: 1 / 2; grid-column: 1 / 2;">
+                <img src="{{ images.0.image.url }}" alt="Image publication" class="object-cover w-full h-full rounded-2xl transition-transform duration-200 hover:scale-105 cursor-pointer" style="width: 100%; height: 100%; object-fit: cover; aspect-ratio: 16/9; background: none; display: block;" onclick="openImageModal('{{ images.0.image.url }}')" />
             </div>
         </div>
         {% else %}
@@ -93,9 +121,9 @@
                          alt="Image publication"
                          class="object-cover w-full h-full transition-transform duration-200 hover:scale-105 cursor-pointer rounded-2xl"
                          style="border-radius: 1rem;" 
-                         onclick="openImageModal('{{ image.image.url }}')" />
+                         onclick="openGalleryModal({{ forloop.counter0 }}, {{ images|length }}, [{% for img in images %}'{{ img.image.url }}'{% if not forloop.last %}, {% endif %}{% endfor %}])" />
                     {% if forloop.last and images|length > 4 %}
-                        <div class="absolute inset-0 bg-black/60 flex items-center justify-center rounded-2xl">
+                        <div class="absolute inset-0 bg-black/60 flex items-center justify-center rounded-2xl cursor-pointer" onclick="openGalleryModal(3, {{ images|length }}, [{% for img in images %}'{{ img.image.url }}'{% if not forloop.last %}, {% endif %}{% endfor %}])">
                             <span class="text-white text-2xl font-bold">+{{ images|length|add:'-4' }}</span>
                         </div>
                     {% endif %}
@@ -204,6 +232,41 @@ function closeImageModal() {
     document.body.classList.remove('overflow-hidden');
 }
 
+// Fonctionnalités de la galerie d'images
+function openGalleryModal(index, total, images) {
+    window.galleryImages = images;
+    window.galleryIndex = index;
+    const modal = document.getElementById('gallery-modal');
+    const img = document.getElementById('gallery-modal-img');
+    img.src = images[index];
+    modal.style.display = 'flex';
+    document.body.classList.add('overflow-hidden');
+    updateGalleryNav();
+}
+function closeGalleryModal() {
+    const modal = document.getElementById('gallery-modal');
+    modal.style.display = 'none';
+    document.body.classList.remove('overflow-hidden');
+}
+function nextGalleryImage() {
+    if (window.galleryImages && window.galleryIndex < window.galleryImages.length - 1) {
+        window.galleryIndex++;
+        document.getElementById('gallery-modal-img').src = window.galleryImages[window.galleryIndex];
+        updateGalleryNav();
+    }
+}
+function prevGalleryImage() {
+    if (window.galleryImages && window.galleryIndex > 0) {
+        window.galleryIndex--;
+        document.getElementById('gallery-modal-img').src = window.galleryImages[window.galleryIndex];
+        updateGalleryNav();
+    }
+}
+function updateGalleryNav() {
+    document.getElementById('gallery-prev').style.visibility = (window.galleryIndex > 0) ? 'visible' : 'hidden';
+    document.getElementById('gallery-next').style.visibility = (window.galleryIndex < window.galleryImages.length - 1) ? 'visible' : 'hidden';
+}
+
 // Met à jour dynamiquement le nombre de commentaires après ajout/suppression
 if (window.htmx) {
     document.body.addEventListener('htmx:afterSwap', function(evt) {
@@ -216,6 +279,12 @@ if (window.htmx) {
     });
 }
 </script>
+<div id="gallery-modal" class="fixed inset-0 z-50 items-center justify-center bg-black/70 backdrop-blur-sm" style="display:none;">
+    <span class="absolute top-4 right-8 text-white text-4xl font-bold cursor-pointer z-60" onclick="closeGalleryModal()">&times;</span>
+    <button id="gallery-prev" onclick="prevGalleryImage()" class="absolute left-8 top-1/2 -translate-y-1/2 text-white text-4xl font-bold z-60 bg-black/40 rounded-full px-3 py-1" style="border:none;">&#8592;</button>
+    <img id="gallery-modal-img" src="" alt="Image agrandie" class="max-w-3xl max-h-[80vh] rounded-2xl border-4 border-white shadow-2xl bg-white" style="object-fit:contain;" />
+    <button id="gallery-next" onclick="nextGalleryImage()" class="absolute right-8 top-1/2 -translate-y-1/2 text-white text-4xl font-bold z-60 bg-black/40 rounded-full px-3 py-1" style="border:none;">&#8594;</button>
+</div>
 <style>
 /* Modal overlay */
 [id^="comments-modal-"] {
@@ -312,20 +381,25 @@ body.overflow-hidden {
     border-radius: 0.75rem !important;
     transition: transform 0.2s;
 }
-.pub-image-x-wrapper .absolute {
-    z-index: 2;
+.pub-3-custom-grid {
+    display: grid;
+    grid-template-columns: 0.88fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 4px;
+    aspect-ratio: 2.76 / 1;
+    border-radius: 1rem;
+    overflow: hidden;
+    background: none;
 }
-.publication-images-grid-x .pub-image-x-wrapper:first-child {
-    border-top-left-radius: 1rem;
-}
-.publication-images-grid-x .pub-image-x-wrapper:nth-child(2) {
-    border-top-right-radius: 1rem;
-}
-.publication-images-grid-x .pub-image-x-wrapper:nth-child(3) {
-    border-bottom-left-radius: 1rem;
-}
-.publication-images-grid-x .pub-image-x-wrapper:nth-child(4) {
-    border-bottom-right-radius: 1rem;
+.pub-2-custom-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr;
+    gap: 4px;
+    aspect-ratio: 32 / 9;
+    border-radius: 1rem;
+    overflow: hidden;
+    background: none;
 }
 @media (max-width: 640px) {
     .publication-images-grid-x {
