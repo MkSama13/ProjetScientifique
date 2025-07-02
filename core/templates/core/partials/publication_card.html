@@ -135,9 +135,105 @@
         {% endif %}
         {% if pub.videos.all %}
         {% with videos=pub.videos.all %}
+        {% if videos|length == 4 %}
+        <div class="pub-4-grid-2col mb-3 mt-2 w-full" style="display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 4px; border-radius: 1rem; overflow: hidden; background: none;">
+            <div style="grid-row: 1 / 2; grid-column: 1 / 2;">
+                <div class="relative group w-full aspect-video cursor-pointer flex justify-center items-center rounded-tl-2xl border border-blue-400/30 shadow-lg bg-black" onclick="openVideoModal('{{ videos.0.video.url }}', 0, ['{{ videos.0.video.url }}', '{{ videos.1.video.url }}', '{{ videos.2.video.url }}', '{{ videos.3.video.url }}'])">
+                    <div class="w-full h-full object-cover rounded-tl-2xl"></div>
+                    <span class="absolute inset-0 flex items-center justify-center">
+                        <svg class="h-16 w-16 text-white/90 drop-shadow-lg" fill="currentColor" viewBox="0 0 48 48">
+                            <circle cx="24" cy="24" r="24" fill="#000" fill-opacity="0.5"/>
+                            <polygon points="20,16 36,24 20,32" fill="#fff"/>
+                        </svg>
+                    </span>
+                </div>
+            </div>
+            <div style="grid-row: 1 / 2; grid-column: 2 / 3;">
+                <div class="relative group w-full aspect-video cursor-pointer flex justify-center items-center rounded-tr-2xl border border-blue-400/30 shadow-lg bg-black" onclick="openVideoModal('{{ videos.1.video.url }}', 1, ['{{ videos.0.video.url }}', '{{ videos.1.video.url }}', '{{ videos.2.video.url }}', '{{ videos.3.video.url }}'])">
+                    <div class="w-full h-full object-cover rounded-tr-2xl"></div>
+                    <span class="absolute inset-0 flex items-center justify-center">
+                        <svg class="h-16 w-16 text-white/90 drop-shadow-lg" fill="currentColor" viewBox="0 0 48 48">
+                            <circle cx="24" cy="24" r="24" fill="#000" fill-opacity="0.5"/>
+                            <polygon points="20,16 36,24 20,32" fill="#fff"/>
+                        </svg>
+                    </span>
+                </div>
+            </div>
+            <div style="grid-row: 2 / 3; grid-column: 1 / 2;">
+                <div class="relative group w-full aspect-video cursor-pointer flex justify-center items-center rounded-bl-2xl border border-blue-400/30 shadow-lg bg-black" onclick="openVideoModal('{{ videos.2.video.url }}', 2, ['{{ videos.0.video.url }}', '{{ videos.1.video.url }}', '{{ videos.2.video.url }}', '{{ videos.3.video.url }}'])">
+                    <div class="w-full h-full object-cover rounded-bl-2xl"></div>
+                    <span class="absolute inset-0 flex items-center justify-center">
+                        <svg class="h-16 w-16 text-white/90 drop-shadow-lg" fill="currentColor" viewBox="0 0 48 48">
+                            <circle cx="24" cy="24" r="24" fill="#000" fill-opacity="0.5"/>
+                            <polygon points="20,16 36,24 20,32" fill="#fff"/>
+                        </svg>
+                    </span>
+                </div>
+            </div>
+            <div style="grid-row: 2 / 3; grid-column: 2 / 3;">
+                <div class="relative group w-full aspect-video cursor-pointer flex justify-center items-center rounded-br-2xl border border-blue-400/30 shadow-lg bg-black" onclick="openVideoModal('{{ videos.3.video.url }}', 3, ['{{ videos.0.video.url }}', '{{ videos.1.video.url }}', '{{ videos.2.video.url }}', '{{ videos.3.video.url }}'])">
+                    <div class="w-full h-full object-cover rounded-br-2xl"></div>
+                    <span class="absolute inset-0 flex items-center justify-center">
+                        <svg class="h-16 w-16 text-white/90 drop-shadow-lg" fill="currentColor" viewBox="0 0 48 48">
+                            <circle cx="24" cy="24" r="24" fill="#000" fill-opacity="0.5"/>
+                            <polygon points="20,16 36,24 20,32" fill="#fff"/>
+                        </svg>
+                    </span>
+                </div>
+            </div>
+        </div>
+        {% elif videos|length == 3 %}
+        <div class="pub-3-grid mb-3 mt-2 w-full max-w-[540px]" style="border-radius: 1rem; overflow: hidden; background: none; margin: 0 auto;">
+            <div style="width: 100%; aspect-ratio: 2.2/0.7; overflow: hidden;">
+                <div class="relative group w-full aspect-video cursor-pointer flex justify-center items-center rounded-t-2xl border border-blue-400/30 shadow-lg bg-black" onclick="openVideoModal('{{ videos.0.video.url }}', 0, ['{{ videos.0.video.url }}', '{{ videos.1.video.url }}', '{{ videos.2.video.url }}'])">
+                    <div class="w-full h-full object-cover rounded-t-2xl"></div>
+                    <span class="absolute inset-0 flex items-center justify-center">
+                        <svg class="h-16 w-16 text-white/90 drop-shadow-lg" fill="currentColor" viewBox="0 0 48 48">
+                            <circle cx="24" cy="24" r="24" fill="#000" fill-opacity="0.5"/>
+                            <polygon points="20,16 36,24 20,32" fill="#fff"/>
+                        </svg>
+                    </span>
+                </div>
+            </div>
+            <div style="display: flex; width: 100%; gap: 4px; margin-top: 4px;">
+                <div class="relative group w-1/2 aspect-video cursor-pointer flex justify-center items-center rounded-bl-2xl border border-blue-400/30 shadow-lg bg-black" onclick="openVideoModal('{{ videos.1.video.url }}', 1, ['{{ videos.0.video.url }}', '{{ videos.1.video.url }}', '{{ videos.2.video.url }}'])">
+                    <div class="w-full h-full object-cover rounded-bl-2xl"></div>
+                    <span class="absolute inset-0 flex items-center justify-center">
+                        <svg class="h-16 w-16 text-white/90 drop-shadow-lg" fill="currentColor" viewBox="0 0 48 48">
+                            <circle cx="24" cy="24" r="24" fill="#000" fill-opacity="0.5"/>
+                            <polygon points="20,16 36,24 20,32" fill="#fff"/>
+                        </svg>
+                    </span>
+                </div>
+                <div class="relative group w-1/2 aspect-video cursor-pointer flex justify-center items-center rounded-br-2xl border border-blue-400/30 shadow-lg bg-black" onclick="openVideoModal('{{ videos.2.video.url }}', 2, ['{{ videos.0.video.url }}', '{{ videos.1.video.url }}', '{{ videos.2.video.url }}'])">
+                    <div class="w-full h-full object-cover rounded-br-2xl"></div>
+                    <span class="absolute inset-0 flex items-center justify-center">
+                        <svg class="h-16 w-16 text-white/90 drop-shadow-lg" fill="currentColor" viewBox="0 0 48 48">
+                            <circle cx="24" cy="24" r="24" fill="#000" fill-opacity="0.5"/>
+                            <polygon points="20,16 36,24 20,32" fill="#fff"/>
+                        </svg>
+                    </span>
+                </div>
+            </div>
+        </div>
+        {% elif videos|length == 2 %}
+        <div class="grid grid-cols-2 gap-4 mt-2 mb-2">
+            {% for video in videos|slice:':2' %}
+                <div class="relative group w-full aspect-video cursor-pointer flex justify-center items-center {% if forloop.first %}rounded-l-2xl{% else %}rounded-r-2xl{% endif %} border border-blue-400/30 shadow-lg bg-black" style="aspect-ratio:16/9;" onclick="openVideoModal('{{ video.video.url }}', {{ forloop.counter0 }}, [{% for v in videos|slice:':2' %}'{{ v.video.url }}'{% if not forloop.last %}, {% endif %}{% endfor %}])">
+                    <div class="w-full h-full object-cover rounded-l-2xl rounded-r-2xl"></div>
+                    <span class="absolute inset-0 flex items-center justify-center">
+                        <svg class="h-16 w-16 text-white/90 drop-shadow-lg" fill="currentColor" viewBox="0 0 48 48">
+                            <circle cx="24" cy="24" r="24" fill="#000" fill-opacity="0.5"/>
+                            <polygon points="20,16 36,24 20,32" fill="#fff"/>
+                        </svg>
+                    </span>
+                </div>
+            {% endfor %}
+        </div>
+        {% else %}
         <div class="flex flex-wrap justify-center items-center gap-4 mt-2 mb-2">
             {% for video in videos|slice:':4' %}
-                <div class="relative group w-full max-w-2xl aspect-video cursor-pointer flex justify-center items-center" style="aspect-ratio:16/9;" onclick="openVideoModal('{{ video.video.url }}', {{ forloop.counter0 }}, [{% for v in videos|slice:':4' %}'{{ v.video.url }}'{% if not forloop.last %}, {% endif %}{% endfor %}])">
+                <div class="relative group w-full max-w-2xl aspect-video cursor-pointer flex justify-center items-center" style="aspect-ratio:16/9;" onclick="openVideoModal('{{ video.video.url }}', {{ forloop.counter0}}, [{% for v in videos|slice:':4' %}'{{ v.video.url }}'{% if not forloop.last %}, {% endif %}{% endfor %}])">
                     <div class="w-full h-full object-cover rounded-xl border border-blue-400/30 shadow-lg bg-black"></div>
                     <span class="absolute inset-0 flex items-center justify-center">
                         <svg class="h-16 w-16 text-white/90 drop-shadow-lg" fill="currentColor" viewBox="0 0 48 48">
@@ -148,6 +244,7 @@
                 </div>
             {% endfor %}
         </div>
+        {% endif %}
         {% endwith %}
         {% endif %}
         <div class="flex flex-wrap gap-2 mt-2">
