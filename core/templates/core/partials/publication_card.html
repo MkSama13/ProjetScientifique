@@ -133,6 +133,18 @@
         {% endif %}
         {% endwith %}
         {% endif %}
+        {% if pub.videos.all %}
+        {% with videos=pub.videos.all %}
+        <div class="flex flex-wrap gap-4 mt-2 mb-2">
+            {% for video in videos|slice:':4' %}
+                <video controls preload="metadata" class="rounded-xl border border-blue-400/30 shadow-lg bg-black max-w-xs w-full h-48 object-cover">
+                    <source src="{{ video.video.url }}" type="video/mp4">
+                    Votre navigateur ne supporte pas la lecture vidéo.
+                </video>
+            {% endfor %}
+        </div>
+        {% endwith %}
+        {% endif %}
         <div class="flex flex-wrap gap-2 mt-2">
             {% for tag in pub.tags|default:''|cut:',' %}
                 {% if tag.strip %}<span class="bg-blue-700/30 text-blue-200 px-2 py-1 rounded text-xs font-semibold">#{{ tag }}</span>{% endif %}

@@ -93,3 +93,14 @@ class Communique(models.Model):
 
     def __str__(self):
         return f"Communiqué: {self.titre} par {self.auteur}"
+
+# ==========================
+# Modèle pour les vidéos associées à une publication
+# ==========================
+class PublicationVideo(models.Model):
+    publication = models.ForeignKey(Publication, on_delete=models.CASCADE, related_name='videos')
+    video = models.FileField(upload_to='publications/videos/', help_text='Formats acceptés : mp4, avi, mov')
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Vidéo pour {self.publication.titre}"

@@ -3,6 +3,7 @@ from django import forms
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from .models import Publication, Commentaire, Reponse, Communique
+from django.forms import ClearableFileInput
 
 User = get_user_model()
 
@@ -70,6 +71,7 @@ class PublicationForm(forms.ModelForm):
     """
     Formulaire de création/édition de publication (post étudiant).
     """
+    # Le champ videos est retiré du formulaire Django (géré côté template/vue)
     class Meta:
         model = Publication
         fields = ['titre', 'contenu', 'departement', 'promotion', 'tags']

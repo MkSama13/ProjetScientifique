@@ -39,6 +39,11 @@ def dashboard(request):
             images = request.FILES.getlist('images')
             for img in images:
                 PublicationImage.objects.create(publication=publication, image=img)
+            # Gestion des vidéos multiples
+            videos = request.FILES.getlist('videos')
+            for v in videos[:4]:
+                from .models import PublicationVideo
+                PublicationVideo.objects.create(publication=publication, video=v)
             if is_htmx:
                 return render(request, 'core/partials/publication_card.html', {'pub': publication, 'user': request.user})
             return HttpResponseRedirect(reverse('dashboard'))
