@@ -137,10 +137,15 @@
         {% with videos=pub.videos.all %}
         <div class="flex flex-wrap gap-4 mt-2 mb-2">
             {% for video in videos|slice:':4' %}
-                <video controls preload="metadata" class="rounded-xl border border-blue-400/30 shadow-lg bg-black max-w-xs w-full h-48 object-cover">
-                    <source src="{{ video.video.url }}" type="video/mp4">
-                    Votre navigateur ne supporte pas la lecture vidéo.
-                </video>
+                <div class="relative group max-w-xs w-full h-48 cursor-pointer" onclick="openVideoModal('{{ video.video.url }}', {{ forloop.counter0 }}, [{% for v in videos|slice:':4' %}'{{ v.video.url }}'{% if not forloop.last %}, {% endif %}{% endfor %}])">
+                    <div class="w-full h-full object-cover rounded-xl border border-blue-400/30 shadow-lg bg-black"></div>
+                    <span class="absolute inset-0 flex items-center justify-center">
+                        <svg class="h-16 w-16 text-white/90 drop-shadow-lg" fill="currentColor" viewBox="0 0 48 48">
+                            <circle cx="24" cy="24" r="24" fill="#000" fill-opacity="0.5"/>
+                            <polygon points="20,16 36,24 20,32" fill="#fff"/>
+                        </svg>
+                    </span>
+                </div>
             {% endfor %}
         </div>
         {% endwith %}
@@ -286,6 +291,63 @@ if (window.htmx) {
     <img id="gallery-modal-img" src="" alt="Image agrandie" class="max-w-3xl max-h-[80vh] rounded-2xl border-4 border-white shadow-2xl bg-white" style="object-fit:contain;" />
     <button id="gallery-next" onclick="nextGalleryImage()" class="absolute right-8 top-1/2 -translate-y-1/2 text-white text-4xl font-bold z-60 bg-black/40 rounded-full px-3 py-1" style="border:none;">&#8594;</button>
 </div>
+<!-- Modal vidéo pop-up -->
+<div id="video-modal" class="fixed inset-0 z-50 items-center justify-center bg-black/70 backdrop-blur-sm" style="display:none;">
+    <span class="absolute top-4 right-8 text-white text-4xl font-bold cursor-pointer z-60" onclick="closeVideoModal()">&times;</span>
+    <button id="video-prev" onclick="prevVideo()" class="absolute left-8 top-1/2 -translate-y-1/2 text-white text-4xl font-bold z-60 bg-black/40 rounded-full px-3 py-1" style="border:none;">&#8592;</button>
+    <video id="video-modal-player" controls class="max-w-3xl max-h-[80vh] rounded-2xl border-4 border-white shadow-2xl bg-black" style="object-fit:contain;">
+        <source id="video-modal-source" src="" type="video/mp4">
+        Votre navigateur ne supporte pas la lecture vidéo.
+    </video>
+    <button id="video-next" onclick="nextVideo()" class="absolute right-8 top-1/2 -translate-y-1/2 text-white text-4xl font-bold z-60 bg-black/40 rounded-full px-3 py-1" style="border:none;">&#8594;</button>
+</div>
+<script>
+function openVideoModal(url, index, videos) {
+    window.videoList = videos || [url];
+    window.videoIndex = index || 0;
+    const modal = document.getElementById('video-modal');
+    const player = document.getElementById('video-modal-player');
+    const source = document.getElementById('video-modal-source');
+    source.src = url;
+    player.load();
+    modal.style.display = 'flex';
+    document.body.classList.add('overflow-hidden');
+    updateVideoNav();
+}
+function closeVideoModal() {
+    const modal = document.getElementById('video-modal');
+    const player = document.getElementById('video-modal-player');
+    modal.style.display = 'none';
+    player.pause();
+    player.currentTime = 0;
+    document.body.classList.remove('overflow-hidden');
+}
+function nextVideo() {
+    if (window.videoList && window.videoIndex < window.videoList.length - 1) {
+        window.videoIndex++;
+        setVideo(window.videoList[window.videoIndex]);
+        updateVideoNav();
+    }
+}
+function prevVideo() {
+    if (window.videoList && window.videoIndex > 0) {
+        window.videoIndex--;
+        setVideo(window.videoList[window.videoIndex]);
+        updateVideoNav();
+    }
+}
+function setVideo(url) {
+    const player = document.getElementById('video-modal-player');
+    const source = document.getElementById('video-modal-source');
+    source.src = url;
+    player.load();
+    player.play();
+}
+function updateVideoNav() {
+    document.getElementById('video-prev').style.visibility = (window.videoIndex > 0) ? 'visible' : 'hidden';
+    document.getElementById('video-next').style.visibility = (window.videoIndex < window.videoList.length - 1) ? 'visible' : 'hidden';
+}
+</script>
 <style>
 /* Modal overlay */
 [id^="comments-modal-"] {
