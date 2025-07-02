@@ -135,9 +135,9 @@
         {% endif %}
         {% if pub.videos.all %}
         {% with videos=pub.videos.all %}
-        <div class="flex flex-wrap gap-4 mt-2 mb-2">
+        <div class="flex flex-wrap justify-center items-center gap-4 mt-2 mb-2">
             {% for video in videos|slice:':4' %}
-                <div class="relative group max-w-xs w-full h-48 cursor-pointer" onclick="openVideoModal('{{ video.video.url }}', {{ forloop.counter0 }}, [{% for v in videos|slice:':4' %}'{{ v.video.url }}'{% if not forloop.last %}, {% endif %}{% endfor %}])">
+                <div class="relative group w-full max-w-2xl aspect-video cursor-pointer flex justify-center items-center" style="aspect-ratio:16/9;" onclick="openVideoModal('{{ video.video.url }}', {{ forloop.counter0 }}, [{% for v in videos|slice:':4' %}'{{ v.video.url }}'{% if not forloop.last %}, {% endif %}{% endfor %}])">
                     <div class="w-full h-full object-cover rounded-xl border border-blue-400/30 shadow-lg bg-black"></div>
                     <span class="absolute inset-0 flex items-center justify-center">
                         <svg class="h-16 w-16 text-white/90 drop-shadow-lg" fill="currentColor" viewBox="0 0 48 48">
@@ -307,8 +307,13 @@ function openVideoModal(url, index, videos) {
     window.videoIndex = index || 0;
     const modal = document.getElementById('video-modal');
     const player = document.getElementById('video-modal-player');
-    const source = document.getElementById('video-modal-source');
-    source.src = url;
+    // Important : supprimer l'ancien <source> et en recréer un pour forcer le rechargement correct
+    while (player.firstChild) player.removeChild(player.firstChild);
+    const newSource = document.createElement('source');
+    newSource.id = 'video-modal-source';
+    newSource.src = url;
+    newSource.type = 'video/mp4';
+    player.appendChild(newSource);
     player.load();
     modal.style.display = 'flex';
     document.body.classList.add('overflow-hidden');
@@ -339,8 +344,15 @@ function prevVideo() {
 function setVideo(url) {
     const player = document.getElementById('video-modal-player');
     const source = document.getElementById('video-modal-source');
-    source.src = url;
+    // Important : supprimer l'ancien <source> et en recréer un pour forcer le rechargement correct
+    while (player.firstChild) player.removeChild(player.firstChild);
+    const newSource = document.createElement('source');
+    newSource.id = 'video-modal-source';
+    newSource.src = url;
+    newSource.type = 'video/mp4';
+    player.appendChild(newSource);
     player.load();
+    player.currentTime = 0;
     player.play();
 }
 function updateVideoNav() {
