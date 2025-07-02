@@ -28,7 +28,6 @@ class Publication(models.Model):
     contenu = models.TextField(max_length=2000)
     departement = models.CharField(max_length=50, blank=True)
     promotion = models.CharField(max_length=50, blank=True)
-    fichier = models.FileField(upload_to='publications/', blank=True, null=True)
     tags = models.CharField(max_length=200, blank=True, help_text="Tags séparés par des virgules")
     date_pub = models.DateTimeField(auto_now_add=True)
 

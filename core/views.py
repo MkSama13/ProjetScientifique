@@ -53,7 +53,6 @@ def dashboard(request):
     # Statistiques utilisateur
     nb_publications = publications.count()
     nb_commentaires = Commentaire.objects.filter(auteur=request.user).count()
-    nb_fichiers = publications.exclude(fichier='').exclude(fichier=None).count()
     # Activité et notifications récentes
     activites = Commentaire.objects.filter(auteur=request.user).order_by('-date_commentaire')[:10]
     notifications = Commentaire.objects.filter(publication__auteur=request.user).exclude(auteur=request.user).order_by('-date_commentaire')[:10]
@@ -65,7 +64,6 @@ def dashboard(request):
         'publications': publications,
         'nb_publications': nb_publications,
         'nb_commentaires': nb_commentaires,
-        'nb_fichiers': nb_fichiers,
         'activites': activites,
         'notifications': notifications,
     })
@@ -224,7 +222,7 @@ def bloc_statistiques(request):
     nb_publications = user_publications.count()
     # Compte tous les commentaires et toutes les réponses de l'utilisateur
     nb_commentaires = Commentaire.objects.filter(auteur=request.user).count() + Reponse.objects.filter(auteur=request.user).count()
-    nb_fichiers = user_publications.exclude(fichier='').exclude(fichier=None).count()
+    nb_fichiers = 0  # Désactivé : plus d'upload de fichiers (image/pdf unique)
     return render(request, 'core/partials/statistiques.html', {
         'nb_publications': nb_publications,
         'nb_commentaires': nb_commentaires,

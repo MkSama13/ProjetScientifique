@@ -133,17 +133,6 @@
         {% endif %}
         {% endwith %}
         {% endif %}
-        {% if pub.fichier and pub.fichier.url %}
-        <div class="mb-3 mt-2 rounded-2xl overflow-hidden border border-blue-400/30 bg-[#181f36]/80 flex items-center justify-center min-h-[180px]">
-            {% with file_url=pub.fichier.url|lower %}
-                {% if file_url|slice:'-4:' == '.pdf' %}
-                    <a href="{{ pub.fichier.url }}" target="_blank" rel="noopener" class="text-blue-400 underline hover:text-blue-200 transition block w-full text-center py-8 cursor-pointer">Voir le fichier PDF joint</a>
-                {% else %}
-                    <img src="{{ pub.fichier.url }}" alt="Fichier joint" class="w-auto max-h-72 object-contain object-center rounded-2xl border-0 cursor-pointer" style="max-width:100%;display:block;" onerror="this.style.display='none'" onclick="openImageModal('{{ pub.fichier.url }}')" />
-                {% endif %}
-            {% endwith %}
-        </div>
-        {% endif %}
         <div class="flex flex-wrap gap-2 mt-2">
             {% for tag in pub.tags|default:''|cut:',' %}
                 {% if tag.strip %}<span class="bg-blue-700/30 text-blue-200 px-2 py-1 rounded text-xs font-semibold">#{{ tag }}</span>{% endif %}
