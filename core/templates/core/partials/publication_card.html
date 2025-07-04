@@ -62,77 +62,78 @@
         <div class="mb-2 text-white text-base whitespace-pre-line break-words">
             {{ pub.contenu|linebreaksbr }}
         </div>
-        {% if pub.images.all %}
         {% with images=pub.images.all %}
-        {% if images|length >= 4 %}
-        <div class="pub-4-grid-2col mb-3 mt-2 w-full" style="display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 4px; border-radius: 1rem; overflow: hidden; background: none;">
-            <div style="grid-row: 1 / 2; grid-column: 1 / 2;">
-                <img src="{{ images.0.image.url }}" alt="Image publication" class="object-cover w-full h-full transition-transform duration-200 hover:scale-105 cursor-pointer rounded-tl-2xl" style="aspect-ratio: 16 / 9; width: 100%; height: 100%; object-fit: cover; display: block; background: none;" onclick="openGalleryModal(0, {{ images|length }}, [{% for img in images %}'{{ img.image.url }}'{% if not forloop.last %}, {% endif %}{% endfor %}])" />
-            </div>
-            <div style="grid-row: 2 / 3; grid-column: 1 / 2;">
-                <img src="{{ images.1.image.url }}" alt="Image publication" class="object-cover w-full h-full transition-transform duration-200 hover:scale-105 cursor-pointer rounded-bl-2xl" style="aspect-ratio: 16 / 9; width: 100%; height: 100%; object-fit: cover; display: block; background: none;" onclick="openGalleryModal(1, {{ images|length }}, [{% for img in images %}'{{ img.image.url }}'{% if not forloop.last %}, {% endif %}{% endfor %}])" />
-            </div>
-            <div style="grid-row: 1 / 2; grid-column: 2 / 3;">
-                <img src="{{ images.2.image.url }}" alt="Image publication" class="object-cover w-full h-full transition-transform duration-200 hover:scale-105 cursor-pointer rounded-tr-2xl" style="aspect-ratio: 16 / 9; width: 100%; height: 100%; object-fit: cover; display: block; background: none;" onclick="openGalleryModal(2, {{ images|length }}, [{% for img in images %}'{{ img.image.url }}'{% if not forloop.last %}, {% endif %}{% endfor %}])" />
-            </div>
-            <div style="grid-row: 2 / 3; grid-column: 2 / 3; position: relative;">
-                <img src="{{ images.3.image.url }}" alt="Image publication" class="object-cover w-full h-full transition-transform duration-200 hover:scale-105 cursor-pointer rounded-br-2xl" style="aspect-ratio: 16 / 9; width: 100%; height: 100%; object-fit: cover; display: block; background: none;" onclick="openGalleryModal(3, {{ images|length }}, [{% for img in images %}'{{ img.image.url }}'{% if not forloop.last %}, {% endif %}{% endfor %}])" />
-                {% if images|length > 4 %}
-                <div class="absolute inset-0 bg-black/60 flex items-center justify-center rounded-2xl cursor-pointer" onclick="openGalleryModal(3, {{ images|length }}, [{% for img in images %}'{{ img.image.url }}'{% if not forloop.last %}, {% endif %}{% endfor %}])">
-                    <span class="text-white text-2xl font-bold">+{{ images|length|add:'-4' }}</span>
-                </div>
-                {% endif %}
-            </div>
-        </div>
-        {% elif images|length == 3 %}
-        <div class="pub-3-mockup-layout mb-3 mt-2 w-full max-w-[540px]" style="border-radius: 1rem; overflow: hidden; background: none; margin: 0 auto;">
-            <div style="width: 100%; aspect-ratio: 2.2/0.7; overflow: hidden;">
-                <img src="{{ images.0.image.url }}" alt="Image publication" style="width: 100%; height: 100%; object-fit: cover; border-top-left-radius: 1rem; border-top-right-radius: 1rem; display: block; cursor:pointer;" class="transition-transform duration-200 hover:scale-105" onclick="openGalleryModal(0, {{ images|length }}, [{% for img in images %}'{{ img.image.url }}'{% if not forloop.last %}, {% endif %}{% endfor %}])" />
-            </div>
-            <div style="display: flex; width: 100%; gap: 4px; margin-top: 4px;">
-                <div style="flex: 1 1 0; aspect-ratio: 1/0.7; overflow: hidden;">
-                    <img src="{{ images.1.image.url }}" alt="Image publication" style="width: 100%; height: 100%; object-fit: cover; border-bottom-left-radius: 1rem; display: block; cursor:pointer;" class="transition-transform duration-200 hover:scale-105" onclick="openGalleryModal(1, {{ images|length }}, [{% for img in images %}'{{ img.image.url }}'{% if not forloop.last %}, {% endif %}{% endfor %}])" />
-                </div>
-                <div style="flex: 1 1 0; aspect-ratio: 1/0.7; overflow: hidden;">
-                    <img src="{{ images.2.image.url }}" alt="Image publication" style="width: 100%; height: 100%; object-fit: cover; border-bottom-right-radius: 1rem; display: block; cursor:pointer;" class="transition-transform duration-200 hover:scale-105" onclick="openGalleryModal(2, {{ images|length }}, [{% for img in images %}'{{ img.image.url }}'{% if not forloop.last %}, {% endif %}{% endfor %}])" />
-                </div>
-            </div>
-        </div>
-        {% elif images|length == 2 %}
-        <div class="pub-2-custom-grid mb-3 mt-2 w-full" style="display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr; gap: 4px; aspect-ratio: 32/9; border-radius: 1rem; overflow: hidden; background: none;">
-            <div style="grid-row: 1 / 2; grid-column: 1 / 2;">
-                <img src="{{ images.0.image.url }}" alt="Image publication" class="object-cover w-full h-full rounded-l-2xl transition-transform duration-200 hover:scale-105 cursor-pointer" style="width: 100%; height: 100%; object-fit: cover; aspect-ratio: 16/9; background: none; display: block;" onclick="openGalleryModal(0, {{ images|length }}, [{% for img in images %}'{{ img.image.url }}'{% if not forloop.last %}, {% endif %}{% endfor %}])" />
-            </div>
-            <div style="grid-row: 1 / 2; grid-column: 2 / 3;">
-                <img src="{{ images.1.image.url }}" alt="Image publication" class="object-cover w-full h-full rounded-r-2xl transition-transform duration-200 hover:scale-105 cursor-pointer" style="width: 100%; height: 100%; object-fit: cover; aspect-ratio: 16/9; background: none; display: block;" onclick="openGalleryModal(1, {{ images|length }}, [{% for img in images %}'{{ img.image.url }}'{% if not forloop.last %}, {% endif %}{% endfor %}])" />
-            </div>
-        </div>
-        {% elif images|length == 1 %}
-        <div class="pub-1-custom-grid mb-3 mt-2 w-full" style="display: grid; grid-template-columns: 1fr; grid-template-rows: 1fr; border-radius: 1rem; overflow: hidden; background: none;">
-            <div style="grid-row: 1 / 2; grid-column: 1 / 2;">
-                <img src="{{ images.0.image.url }}" alt="Image publication" class="object-cover w-full h-full rounded-2xl transition-transform duration-200 hover:scale-105 cursor-pointer" style="width: 100%; height: 100%; object-fit: cover; aspect-ratio: 16/9; background: none; display: block;" onclick="openImageModal('{{ images.0.image.url }}')" />
-            </div>
-        </div>
-        {% else %}
-        <div class="publication-images-grid-x mb-3 mt-2 w-full" style="background: none; border: none; border-radius: 0; overflow: visible;">
-            {% for image in images|slice:":4" %}
-                <div class="pub-image-x-wrapper relative group" style="background: none; border: none; border-radius: 0;">
-                    <img src="{{ image.image.url }}"
-                         alt="Image publication"
-                         class="object-cover w-full h-full transition-transform duration-200 hover:scale-105 cursor-pointer rounded-2xl"
-                         style="border-radius: 1rem;" 
-                         onclick="openGalleryModal({{ forloop.counter0 }}, {{ images|length }}, [{% for img in images %}'{{ img.image.url }}'{% if not forloop.last %}, {% endif %}{% endfor %}])" />
-                    {% if forloop.last and images|length > 4 %}
+            {% if images %}
+                {% if images|length >= 4 %}
+                <div class="pub-4-grid-2col mb-3 mt-2 w-full" style="display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 4px; border-radius: 1rem; overflow: hidden; background: none;">
+                    <div style="grid-row: 1 / 2; grid-column: 1 / 2;">
+                        <img src="{{ images.0.image.url }}" alt="Image publication" class="object-cover w-full h-full transition-transform duration-200 hover:scale-105 cursor-pointer rounded-tl-2xl" style="aspect-ratio: 16 / 9; width: 100%; height: 100%; object-fit: cover; display: block; background: none;" onclick="openGalleryModal(0, {{ images|length }}, [{% for img in images %}'{{ img.image.url }}'{% if not forloop.last %}, {% endif %}{% endfor %}])" />
+                    </div>
+                    <div style="grid-row: 2 / 3; grid-column: 1 / 2;">
+                        <img src="{{ images.1.image.url }}" alt="Image publication" class="object-cover w-full h-full transition-transform duration-200 hover:scale-105 cursor-pointer rounded-bl-2xl" style="aspect-ratio: 16 / 9; width: 100%; height: 100%; object-fit: cover; display: block; background: none;" onclick="openGalleryModal(1, {{ images|length }}, [{% for img in images %}'{{ img.image.url }}'{% if not forloop.last %}, {% endif %}{% endfor %}])" />
+                    </div>
+                    <div style="grid-row: 1 / 2; grid-column: 2 / 3;">
+                        <img src="{{ images.2.image.url }}" alt="Image publication" class="object-cover w-full h-full transition-transform duration-200 hover:scale-105 cursor-pointer rounded-tr-2xl" style="aspect-ratio: 16 / 9; width: 100%; height: 100%; object-fit: cover; display: block; background: none;" onclick="openGalleryModal(2, {{ images|length }}, [{% for img in images %}'{{ img.image.url }}'{% if not forloop.last %}, {% endif %}{% endfor %}])" />
+                    </div>
+                    <div style="grid-row: 2 / 3; grid-column: 2 / 3; position: relative;">
+                        <img src="{{ images.3.image.url }}" alt="Image publication" class="object-cover w-full h-full transition-transform duration-200 hover:scale-105 cursor-pointer rounded-br-2xl" style="aspect-ratio: 16 / 9; width: 100%; height: 100%; object-fit: cover; display: block; background: none;" onclick="openGalleryModal(3, {{ images|length }}, [{% for img in images %}'{{ img.image.url }}'{% if not forloop.last %}, {% endif %}{% endfor %}])" />
+                        {% if images|length > 4 %}
                         <div class="absolute inset-0 bg-black/60 flex items-center justify-center rounded-2xl cursor-pointer" onclick="openGalleryModal(3, {{ images|length }}, [{% for img in images %}'{{ img.image.url }}'{% if not forloop.last %}, {% endif %}{% endfor %}])">
                             <span class="text-white text-2xl font-bold">+{{ images|length|add:'-4' }}</span>
                         </div>
-                    {% endif %}
+                        {% endif %}
+                    </div>
                 </div>
-            {% endfor %}
-        </div>
-        {% endif %}
+                {% elif images|length == 3 %}
+                <div class="pub-3-mockup-layout mb-3 mt-2 w-full max-w-[540px]" style="border-radius: 1rem; overflow: hidden; background: none; margin: 0 auto;">
+                    <div style="width: 100%; aspect-ratio: 2.2/0.7; overflow: hidden;">
+                        <img src="{{ images.0.image.url }}" alt="Image publication" style="width: 100%; height: 100%; object-fit: cover; border-top-left-radius: 1rem; border-top-right-radius: 1rem; display: block; cursor:pointer;" class="transition-transform duration-200 hover:scale-105" onclick="openGalleryModal(0, {{ images|length }}, [{% for img in images %}'{{ img.image.url }}'{% if not forloop.last %}, {% endif %}{% endfor %}])" />
+                    </div>
+                    <div style="display: flex; width: 100%; gap: 4px; margin-top: 4px;">
+                        <div style="flex: 1 1 0; aspect-ratio: 1/0.7; overflow: hidden;">
+                            <img src="{{ images.1.image.url }}" alt="Image publication" style="width: 100%; height: 100%; object-fit: cover; border-bottom-left-radius: 1rem; display: block; cursor:pointer;" class="transition-transform duration-200 hover:scale-105" onclick="openGalleryModal(1, {{ images|length }}, [{% for img in images %}'{{ img.image.url }}'{% if not forloop.last %}, {% endif %}{% endfor %}])" />
+                        </div>
+                        <div style="flex: 1 1 0; aspect-ratio: 1/0.7; overflow: hidden;">
+                            <img src="{{ images.2.image.url }}" alt="Image publication" style="width: 100%; height: 100%; object-fit: cover; border-bottom-right-radius: 1rem; display: block; cursor:pointer;" class="transition-transform duration-200 hover:scale-105" onclick="openGalleryModal(2, {{ images|length }}, [{% for img in images %}'{{ img.image.url }}'{% if not forloop.last %}, {% endif %}{% endfor %}])" />
+                        </div>
+                    </div>
+                </div>
+                {% elif images|length == 2 %}
+                <div class="pub-2-custom-grid mb-3 mt-2 w-full" style="display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr; gap: 4px; aspect-ratio: 32/9; border-radius: 1rem; overflow: hidden; background: none;">
+                    <div style="grid-row: 1 / 2; grid-column: 1 / 2;">
+                        <img src="{{ images.0.image.url }}" alt="Image publication" class="object-cover w-full h-full rounded-l-2xl transition-transform duration-200 hover:scale-105 cursor-pointer" style="width: 100%; height: 100%; object-fit: cover; aspect-ratio: 16/9; background: none; display: block;" onclick="openGalleryModal(0, {{ images|length }}, [{% for img in images %}'{{ img.image.url }}'{% if not forloop.last %}, {% endif %}{% endfor %}])" />
+                    </div>
+                    <div style="grid-row: 1 / 2; grid-column: 2 / 3;">
+                        <img src="{{ images.1.image.url }}" alt="Image publication" class="object-cover w-full h-full rounded-r-2xl transition-transform duration-200 hover:scale-105 cursor-pointer" style="width: 100%; height: 100%; object-fit: cover; aspect-ratio: 16/9; background: none; display: block;" onclick="openGalleryModal(1, {{ images|length }}, [{% for img in images %}'{{ img.image.url }}'{% if not forloop.last %}, {% endif %}{% endfor %}])" />
+                    </div>
+                </div>
+                {% elif images|length == 1 %}
+                <div class="pub-1-custom-grid mb-3 mt-2 w-full" style="display: grid; grid-template-columns: 1fr; grid-template-rows: 1fr; border-radius: 1rem; overflow: hidden; background: none;">
+                    <div style="grid-row: 1 / 2; grid-column: 1 / 2;">
+                        <img src="{{ images.0.image.url }}" alt="Image publication" class="object-cover w-full h-full rounded-2xl transition-transform duration-200 hover:scale-105 cursor-pointer" style="width: 100%; height: 100%; object-fit: cover; aspect-ratio: 16/9; background: none; display: block;" onclick="openImageModal('{{ images.0.image.url }}')" />
+                    </div>
+                </div>
+                {% else %}
+                <div class="publication-images-grid-x mb-3 mt-2 w-full" style="background: none; border: none; border-radius: 0; overflow: visible;">
+                    {% for image in images|slice:":4" %}
+                        <div class="pub-image-x-wrapper relative group" style="background: none; border: none; border-radius: 0;">
+                            <img src="{{ image.image.url }}"
+                                 alt="Image publication"
+                                 class="object-cover w-full h-full transition-transform duration-200 hover:scale-105 cursor-pointer rounded-2xl"
+                                 style="border-radius: 1rem;"
+                                 onclick="openGalleryModal({{ forloop.counter0 }}, {{ images|length }}, [{% for img in images %}'{{ img.image.url }}'{% if not forloop.last %}, {% endif %}{% endfor %}])" />
+                            {% if forloop.last and images|length > 4 %}
+                                <div class="absolute inset-0 bg-black/60 flex items-center justify-center rounded-2xl cursor-pointer" onclick="openGalleryModal(3, {{ images|length }}, [{% for img in images %}'{{ img.image.url }}'{% if not forloop.last %}, {% endif %}{% endfor %}])">
+                                    <span class="text-white text-2xl font-bold">+{{ images|length|add:'-4' }}</span>
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            {% endif %}
         {% endwith %}
-        {% endif %}
+
         {% if pub.videos.all %}
         {% with videos=pub.videos.all %}
         {% if videos|length == 4 %}
@@ -247,8 +248,26 @@
         {% endif %}
         {% endwith %}
         {% endif %}
+        {% if pub.pdfs.all %}
+            {% with pdfs=pub.pdfs.all %}
+            <div class="flex flex-col gap-4 mt-2 mb-2">
+                {% for pdf in pdfs %}
+                <div class="flex items-center gap-3 bg-blue-900/30 rounded-lg p-3 max-w-xs">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7V3a1 1 0 011-1h8a1 1 0 011 1v18a1 1 0 01-1 1H8a1 0 01-1-1v-4" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7l5 5 5-5" /></svg>
+                    <span class="text-blue-200 font-semibold truncate max-w-[200px]" title="{{ pdf.pdf.name }}">{{ pdf.pdf.name|slice:"-30:" }}</span>
+                    <a href="{{ pdf.pdf.url }}" download class="inline-flex items-center gap-1 ml-2 text-blue-400 font-semibold hover:text-blue-600 transition cursor-pointer" title="Télécharger le PDF">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5m0 0l5-5m-5 5V4" />
+                        </svg>
+                        <span>Télécharger</span>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+            {% endwith %}
+        {% endif %}
         <div class="flex flex-wrap gap-2 mt-2">
-            {% for tag in pub.tags|default:''|cut:',' %}
+                {% for tag in pub.tags|default:''|cut:',' %}
                 {% if tag.strip %}<span class="bg-blue-700/30 text-blue-200 px-2 py-1 rounded text-xs font-semibold">#{{ tag }}</span>{% endif %}
             {% endfor %}
         </div>

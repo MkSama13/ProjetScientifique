@@ -44,6 +44,11 @@ def dashboard(request):
             for v in videos[:4]:
                 from .models import PublicationVideo
                 PublicationVideo.objects.create(publication=publication, video=v)
+            # Gestion des fichiers PDF multiples
+            pdfs = request.FILES.getlist('pdfs')
+            for pdf_file in pdfs:
+                from .models import PublicationPDF
+                PublicationPDF.objects.create(publication=publication, pdf=pdf_file)
             if is_htmx:
                 return render(request, 'core/partials/publication_card.html', {'pub': publication, 'user': request.user})
             return HttpResponseRedirect(reverse('dashboard'))

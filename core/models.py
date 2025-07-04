@@ -104,3 +104,14 @@ class PublicationVideo(models.Model):
 
     def __str__(self):
         return f"Vidéo pour {self.publication.titre}"
+
+# ==========================
+# Modèle pour les fichiers PDF associés à une publication
+# ==========================
+class PublicationPDF(models.Model):
+    publication = models.ForeignKey(Publication, on_delete=models.CASCADE, related_name='pdfs')
+    pdf = models.FileField(upload_to='publications/pdfs/', help_text='Format accepté : pdf')
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"PDF pour {self.publication.titre}"
