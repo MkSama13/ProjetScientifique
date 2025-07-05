@@ -1,34 +1,46 @@
 {% load static %}
-<form method="post" hx-post="{{ action_url }}" hx-target="#comments-list-{{ pub.pk }}" hx-swap="afterbegin" class="flex gap-2 items-start mt-2 group/comment" enctype="multipart/form-data">
-    {% csrf_token %}
-    <div class="flex-1 space-y-2">
-        {{ form.contenu }}
-        {{ form.image }}
-        {{ form.video }}
-        {{ form.pdf }}
-    </div>
-    <button type="submit" class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-lg shadow-lg transition duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400 transform hover:scale-105 active:scale-95">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
-        Publier
-    </button>
-</form>
+<div class="flex items-end gap-2 w-full">
+    <form method="post" hx-post="{{ action_url }}" hx-target="#comments-list-{{ pub.pk }}" hx-swap="afterbegin" enctype="multipart/form-data" class="flex-1">
+        {% csrf_token %}
+        <div class="flex flex-col rounded-2xl px-4 pt-2 pb-1 border border-blue-400/10 bg-[#f0f2f5]">
+            <textarea name="contenu" rows="1" maxlength="500" placeholder="Écrivez un commentaire..." class="w-full bg-transparent text-gray-900 border-0 focus:ring-0 focus:outline-none resize-none placeholder:text-gray-400 text-base"></textarea>
+            <div class="flex items-center gap-3 mt-2">
+                <label class="cursor-pointer" title="Ajouter une image">
+                    <svg class="w-6 h-6 text-blue-400 hover:text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a4 4 0 004 4h10a4 4 0 004-4V7a4 4 0 00-4-4H7a4 4 0 00-4 4z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11l2 2 4-4m2 6h.01" /></svg>
+                    <input type="file" name="image" accept="image/*" class="hidden" />
+                </label>
+                <label class="cursor-pointer" title="Ajouter une vidéo">
+                    <svg class="w-6 h-6 text-pink-400 hover:text-pink-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M4 6h8a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2z" /></svg>
+                    <input type="file" name="video" accept="video/*" class="hidden" />
+                </label>
+                <label class="cursor-pointer" title="Ajouter un PDF">
+                    <svg class="w-6 h-6 text-red-400 hover:text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /><rect width="20" height="20" x="2" y="2" rx="2" fill="none" /></svg>
+                    <input type="file" name="pdf" accept="application/pdf" class="hidden" />
+                </label>
+                <button type="submit" class="ml-auto flex items-center justify-center bg-transparent border-0 p-0" style="background:none;">
+                    <!-- Facebook-like paper plane icon -->
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-blue-500 hover:text-blue-700" fill="currentColor" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
 <style>
-    /* Champ commentaire dans le thème (personnalisation du textarea) */
-    .group\/comment textarea {
-        background: #181f36 !important;
-        color: #fff !important;
-        border: 1px solid rgba(96,165,250,0.3) !important;
-        border-radius: 0.75rem !important;
-        font-size: 1rem;
-        padding: 0.75rem 1rem;
-        transition: border 0.18s, box-shadow 0.18s;
-        box-shadow: none;
-        min-height: 2.5rem;
-        resize: none;
-    }
-    .group\/comment textarea:focus {
-        border-color: #60a5fa !important;
-        outline: none;
-        box-shadow: 0 0 0 2px #60a5fa44;
-    }
+.group\/comment textarea {
+    background: transparent !important;
+    color: #222 !important;
+    border: none !important;
+    border-radius: 1.25rem !important;
+    font-size: 1rem;
+    padding: 0.75rem 1rem;
+    transition: border 0.18s, box-shadow 0.18s;
+    box-shadow: none;
+    min-height: 2.5rem;
+    resize: none;
+}
+.group\/comment textarea:focus {
+    border-color: #60a5fa !important;
+    outline: none;
+    box-shadow: 0 0 0 2px #60a5fa44;
+}
 </style>
