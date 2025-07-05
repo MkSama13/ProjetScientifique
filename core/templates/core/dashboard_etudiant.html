@@ -109,7 +109,7 @@
     hx-target="#publications-list"
     hx-swap="afterbegin"
     class="flex flex-col gap-5 animate-fadeInRight rounded-2xl p-6 shadow-2xl border border-blue-400/30 backdrop-blur-xl bg-[#101624]"
-    style="background: transparent !important;"
+    style="background: #101624 !important;"
     hx-on:afterRequest="this.reset(); open = false">
     {% csrf_token %}
     <div>
@@ -142,19 +142,38 @@
         </div>
     </div>
     <div>
-        <label for="images" class="block text-white font-semibold mb-1">Ajouter des images (plusieurs possibles)</label>
-        <input type="file" id="images" name="images" accept="image/*" multiple class="block w-full text-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700 transition file:transition-transform file:duration-200" />
-        <span class="text-xs text-gray-400 mt-1 block">Vous pouvez sélectionner plusieurs images.</span>
+        <label class="block text-white font-semibold mb-1">Ajouter des fichiers</label>
+        <div class="flex items-center gap-8 mt-2">
+            <div class="flex gap-8">
+                <label class="flex flex-col items-center cursor-pointer group" title="Ajouter une image">
+                    <svg class="w-14 h-14 text-blue-400 group-hover:text-blue-600 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a4 4 0 004 4h10a4 4 0 004-4V7a4 4 0 00-4-4H7a4 4 0 00-4 4z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11l2 2 4-4m2 6h.01" />
+                    </svg>
+                    <span class="mt-2 text-sm text-blue-200 font-semibold">Image(s)</span>
+                    <input type="file" id="images" name="images" accept="image/*" multiple class="hidden" onchange="updateImportCount('images')" />
+                </label>
+                <label class="flex flex-col items-center cursor-pointer group" title="Ajouter une vidéo">
+                    <svg class="w-14 h-14 text-pink-400 group-hover:text-pink-600 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M4 6h8a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2z" />
+                    </svg>
+                    <span class="mt-2 text-sm text-pink-200 font-semibold">Vidéo(s)</span>
+                    <input type="file" id="videos" name="videos" accept="video/*" multiple class="hidden" onchange="updateImportCount('videos')" />
+                </label>
+                <label class="flex flex-col items-center cursor-pointer group" title="Ajouter un PDF">
+                    <svg class="w-14 h-14 text-red-400 group-hover:text-red-600 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <rect width="20" height="20" x="2" y="2" rx="2" fill="none" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                    </svg>
+                    <span class="mt-2 text-sm text-red-200 font-semibold">PDF(s)</span>
+                    <input type="file" id="pdfs" name="pdfs" accept="application/pdf" multiple class="hidden" onchange="updateImportCount('pdfs')" />
+                </label>
+            </div>
+            <div class="flex flex-col ml-6 text-left text-xs text-blue-200 font-semibold gap-1" id="imported-files-info">
+        <!-- Les infos d'import s'affichent ici -->
     </div>
-    <div>
-        <label for="videos" class="block text-white font-semibold mb-1">Ajouter des vidéos (max 4)</label>
-        <input type="file" id="videos" name="videos" accept="video/*" multiple class="block w-full text-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700 transition file:transition-transform file:duration-200" />
-        <span class="text-xs text-gray-400 mt-1 block">Vous pouvez sélectionner jusqu'à 4 vidéos.</span>
-    </div>
-    <div>
-        <label for="pdfs" class="block text-white font-semibold mb-1">Ajouter des PDF (plusieurs possibles)</label>
-        <input type="file" id="pdfs" name="pdfs" accept="application/pdf" multiple class="block w-full text-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700 transition file:transition-transform file:duration-200" />
-        <span class="text-xs text-gray-400 mt-1 block">Vous pouvez sélectionner un ou plusieurs fichiers PDF.</span>
+        </div>
+        <span class="text-xs text-gray-400 mt-1 block">Vous pouvez sélectionner plusieurs fichiers.</span>
     </div>
     <div>
         <label for="tags" class="block text-white font-semibold mb-1">Tags</label>
@@ -235,6 +254,16 @@ if (window.htmx) {
             }
         }
     });
+}
+function updateImportCount(type) {
+    const images = document.getElementById('images').files.length;
+    const videos = document.getElementById('videos').files.length;
+    const pdfs = document.getElementById('pdfs').files.length;
+    let infos = [];
+    if (images > 0) infos.push(`${images} image${images > 1 ? 's' : ''} importé${images > 1 ? 's' : ''}`);
+    if (videos > 0) infos.push(`${videos} vidéo${videos > 1 ? 's' : ''} importée${videos > 1 ? 's' : ''}`);
+    if (pdfs > 0) infos.push(`${pdfs} PDF${pdfs > 1 ? 's' : ''} importé${pdfs > 1 ? 's' : ''}`);
+    document.getElementById('imported-files-info').innerHTML = infos.length ? infos.map(i => `<span>${i}</span>`).join('') : '';
 }
 </script>
 {% endblock %}
