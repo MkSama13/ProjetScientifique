@@ -41,7 +41,6 @@
                 {% endif %}
             </div>
             <div class="flex items-center gap-4 mt-1 ml-2">
-                <span class="text-xs text-gray-400 font-semibold cursor-pointer hover:underline">J’aime</span>
                 <span class="text-xs text-blue-400 font-semibold cursor-pointer hover:underline" onclick="toggleReponseForm({{ commentaire.pk }})">Répondre</span>
                 {% if commentaire.auteur == user %}
                 <form method="POST" hx-post="{% url 'delete_commentaire' commentaire.pk %}" hx-target="#comment-{{ commentaire.pk }}" hx-swap="outerHTML" class="inline">
@@ -78,8 +77,17 @@
                     </div>
                 </form>
             </div>
-            <!-- Réponses imbriquées -->
-            <div id="reponses-list-{{ commentaire.pk }}" class="mt-2">
+            <!-- Bloc d'affichage des réponses façon Facebook -->
+            {% with reponses=commentaire.reponses.all %}
+            {% if reponses and reponses|length > 0 %}
+                <div id="toggle-reponses-btn-{{ commentaire.pk }}" class="flex items-center gap-2 mt-2 cursor-pointer select-none text-xs text-blue-300 hover:underline font-semibold" onclick="toggleReponses('{{ commentaire.pk }}')">
+                    <span id="reponse-count-{{ commentaire.pk }}">Voir les réponses</span>
+                    <svg id="chevron-{{ commentaire.pk }}" class="w-4 h-4 ml-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                </div>
+            {% endif %}
+            {% endwith %}
+            <!-- Réponses imbriquées masquées par défaut -->
+            <div id="reponses-list-{{ commentaire.pk }}" class="mt-2 hidden">
                 {% for reponse in commentaire.reponses.all %}
                     {% include 'core/partials/reponse_item.html' with reponse=reponse user=user %}
                 {% endfor %}
@@ -87,6 +95,8 @@
         </div>
     </div>
 </div>
+<!-- Ligne de séparation stylée entre commentaires principaux et entre réponses de même niveau -->
+<hr class="my-4 border-t-2 border-blue-900/40 shadow-sm rounded-full w-11/12 mx-auto" />
 <style>
 .commentaire-item {
     transition: box-shadow 0.2s, border-color 0.2s;
@@ -104,5 +114,28 @@
 function toggleReponseForm(commentaireId) {
     const form = document.getElementById('reponse-form-' + commentaireId);
     if (form) form.classList.toggle('hidden');
+}
+function toggleReponses(commentaireId) {
+    const list = document.getElementById('reponses-list-' + commentaireId);
+    const chevron = document.getElementById('chevron-' + commentaireId);
+    if (list) {
+        list.classList.toggle('hidden');
+        if (chevron) chevron.style.transform = list.classList.contains('hidden') ? '' : 'rotate(180deg)';
+    }
+}
+// Met à jour dynamiquement le compteur de réponses après ajout via HTMX
+if (window.htmx) {
+    document.body.addEventListener('htmx:afterSwap', function(e) {
+        // Vérifie si une réponse a été ajoutée dans la bonne liste
+        if (e.detail.target && e.detail.target.id && e.detail.target.id.startsWith('reponses-list-')) {
+            var commentaireId = e.detail.target.id.replace('reponses-list-', '');
+            var list = document.getElementById('reponses-list-' + commentaireId);
+            var countSpan = document.getElementById('reponse-count-' + commentaireId);
+            if (list && countSpan) {
+                var nb = list.querySelectorAll('.reponse-item').length;
+                countSpan.textContent = 'Voir les réponses (' + nb + ')';
+            }
+        }
+    });
 }
 </script>
