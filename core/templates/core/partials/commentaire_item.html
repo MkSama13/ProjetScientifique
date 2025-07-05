@@ -6,41 +6,78 @@
     - Permet à l'auteur de supprimer son commentaire (HTMX).
     - Affiche récursivement les réponses via le partial reponse_item.html.
 -->
-<div id="comment-{{ commentaire.pk }}" class="commentaire-item flex flex-col gap-1 mb-3 group bg-[#181f36]/80 rounded-xl p-3 border border-blue-400/20 shadow-sm">
+<div id="comment-{{ commentaire.pk }}" class="commentaire-item flex flex-col gap-1 mb-4 group">
     <div class="flex items-start gap-3">
+        <!-- Avatar (placeholder) -->
+        <div class="w-9 h-9 rounded-full bg-blue-900 flex items-center justify-center text-lg font-bold text-white shadow-md border-2 border-blue-400 select-none">
+            {{ commentaire.auteur.get_full_name|default:commentaire.auteur.username|first|upper }}
+        </div>
         <div class="flex-1">
-            <!-- Auteur et date du commentaire -->
-            <span class="font-semibold text-blue-300">{{ commentaire.auteur.get_full_name|default:commentaire.auteur.username }}</span>
-            <span class="text-xs text-gray-400 ml-2">{{ commentaire.date_commentaire|date:'d/m/Y H:i' }}</span>
-            <!-- Contenu du commentaire -->
-            <p class="text-white mt-1 break-words">{{ commentaire.contenu }}</p>
-        </div>
-    </div>
-    <div class="ml-8 flex items-center gap-2 mt-1">
-        <!-- Lien pour afficher le formulaire de réponse -->
-        <span class="text-blue-400 text-xs font-semibold cursor-pointer hover:underline" onclick="toggleReponseForm({{ commentaire.pk }})">Répondre</span>
-        {% if commentaire.auteur == user %}
-        <!-- Suppression du commentaire (HTMX) -->
-        <form method="POST" hx-post="{% url 'delete_commentaire' commentaire.pk %}" hx-target="#comment-{{ commentaire.pk }}" hx-swap="outerHTML" class="inline">
-            {% csrf_token %}
-            <button type="submit" class="text-red-400 text-xs font-semibold cursor-pointer hover:underline bg-transparent border-0 p-0" style="background:none;">Supprimer</button>
-        </form>
-        {% endif %}
-    </div>
-    <div class="ml-8">
-        <!-- Formulaire de réponse (affiché dynamiquement) -->
-        <div id="reponse-form-{{ commentaire.pk }}" class="hidden mt-1">
-            <form method="post" hx-post="{% url 'add_reponse' commentaire.pk %}" hx-target="#reponses-list-{{ commentaire.pk }}" hx-swap="afterbegin" class="flex gap-2 items-start">
-                {% csrf_token %}
-                <textarea name="contenu" rows="1" maxlength="300" placeholder="Répondre..." class="w-full px-3 py-1 rounded-lg bg-[#181f36] border border-blue-400/30 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"></textarea>
-                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-3 py-1 rounded-lg text-xs">Publier</button>
-            </form>
-        </div>
-        <!-- Affichage des réponses associées -->
-        <div id="reponses-list-{{ commentaire.pk }}">
-            {% for reponse in commentaire.reponses.all %}
-                {% include 'core/partials/reponse_item.html' with reponse=reponse user=user %}
-            {% endfor %}
+            <div class="bg-white/10 rounded-2xl px-4 py-3 shadow border border-blue-400/10">
+                <div class="flex items-center gap-2 mb-1">
+                    <span class="font-semibold text-blue-200">{{ commentaire.auteur.get_full_name|default:commentaire.auteur.username }}</span>
+                    <span class="text-xs text-gray-400">{{ commentaire.date_commentaire|date:'d/m/Y H:i' }}</span>
+                </div>
+                <div class="text-white text-base break-words">{{ commentaire.contenu }}</div>
+                {% if commentaire.image or commentaire.video or commentaire.pdf %}
+                <div class="flex flex-col gap-1 mt-2">
+                    {% if commentaire.image %}
+                        <a href="{{ commentaire.image.url }}" target="_blank" class="text-xs text-blue-300 hover:underline flex items-center gap-1">
+                            <span>{{ commentaire.image.name|slice:'commentaires/images/' }}</span>
+                            <span class="text-gray-400">[{{ commentaire.image.name|cut:'.'|slice:'-3:'|upper }}]</span>
+                        </a>
+                    {% endif %}
+                    {% if commentaire.video %}
+                        <a href="{{ commentaire.video.url }}" target="_blank" class="text-xs text-pink-300 hover:underline flex items-center gap-1">
+                            <span>{{ commentaire.video.name|slice:'commentaires/videos/' }}</span>
+                            <span class="text-gray-400">[{{ commentaire.video.name|cut:'.'|slice:'-3:'|upper }}]</span>
+                        </a>
+                    {% endif %}
+                    {% if commentaire.pdf %}
+                        <a href="{{ commentaire.pdf.url }}" target="_blank" class="text-xs text-red-400 hover:underline flex items-center gap-1">
+                            <span>{{ commentaire.pdf.name|slice:'commentaires/pdfs/' }}</span>
+                            <span class="text-gray-400">[PDF]</span>
+                        </a>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+            <div class="flex items-center gap-4 mt-1 ml-2">
+                <span class="text-xs text-gray-400 font-semibold cursor-pointer hover:underline">J’aime</span>
+                <span class="text-xs text-blue-400 font-semibold cursor-pointer hover:underline" onclick="toggleReponseForm({{ commentaire.pk }})">Répondre</span>
+                {% if commentaire.auteur == user %}
+                <form method="POST" hx-post="{% url 'delete_commentaire' commentaire.pk %}" hx-target="#comment-{{ commentaire.pk }}" hx-swap="outerHTML" class="inline">
+                    {% csrf_token %}
+                    <button type="submit" class="text-red-400 text-xs font-semibold cursor-pointer hover:underline bg-transparent border-0 p-0" style="background:none;">Supprimer</button>
+                </form>
+                {% endif %}
+            </div>
+            <!-- Formulaire de réponse moderne -->
+            <div id="reponse-form-{{ commentaire.pk }}" class="hidden mt-2">
+                <form method="post" enctype="multipart/form-data" hx-post="{% url 'add_reponse' commentaire.pk %}" hx-target="#reponses-list-{{ commentaire.pk }}" hx-swap="afterbegin" class="flex items-center gap-2 bg-white/10 rounded-xl px-3 py-2 mt-1">
+                    {% csrf_token %}
+                    <textarea name="contenu" rows="1" maxlength="300" placeholder="Répondre à {{ commentaire.auteur.get_full_name|default:commentaire.auteur.username }}..." class="flex-1 bg-transparent text-white border-0 focus:ring-0 focus:outline-none resize-none"></textarea>
+                    <label class="cursor-pointer" title="Ajouter une image">
+                        <svg class="w-5 h-5 text-blue-400 hover:text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a4 4 0 004 4h10a4 4 0 004-4V7a4 4 0 00-4-4H7a4 4 0 00-4 4z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11l2 2 4-4m2 6h.01" /></svg>
+                        <input type="file" name="image" accept="image/*" class="hidden" />
+                    </label>
+                    <label class="cursor-pointer" title="Ajouter une vidéo">
+                        <svg class="w-5 h-5 text-pink-400 hover:text-pink-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M4 6h8a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2z" /></svg>
+                        <input type="file" name="video" accept="video/*" class="hidden" />
+                    </label>
+                    <label class="cursor-pointer" title="Ajouter un PDF">
+                        <svg class="w-5 h-5 text-red-400 hover:text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /><rect width="20" height="20" x="2" y="2" rx="2" fill="none" /></svg>
+                        <input type="file" name="pdf" accept="application/pdf" class="hidden" />
+                    </label>
+                    <button type="submit" class="ml-2 bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-1 rounded-lg text-xs">Publier</button>
+                </form>
+            </div>
+            <!-- Réponses imbriquées -->
+            <div id="reponses-list-{{ commentaire.pk }}" class="mt-2">
+                {% for reponse in commentaire.reponses.all %}
+                    {% include 'core/partials/reponse_item.html' with reponse=reponse user=user %}
+                {% endfor %}
+            </div>
         </div>
     </div>
 </div>

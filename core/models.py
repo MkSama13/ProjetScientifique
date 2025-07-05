@@ -56,6 +56,9 @@ class Commentaire(models.Model):
     auteur = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     contenu = models.TextField(max_length=500)
     date_commentaire = models.DateTimeField(auto_now_add=True)
+    image = models.ImageField(upload_to='commentaires/images/', blank=True, null=True)
+    video = models.FileField(upload_to='commentaires/videos/', blank=True, null=True)
+    pdf = models.FileField(upload_to='commentaires/pdfs/', blank=True, null=True)
 
     class Meta:
         ordering = ['date_commentaire']
@@ -71,6 +74,10 @@ class Reponse(models.Model):
     auteur = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     contenu = models.TextField(max_length=300)
     date_reponse = models.DateTimeField(auto_now_add=True)
+    parent = models.ForeignKey('self', null=True, blank=True, on_delete=models.CASCADE, related_name='reponses')
+    image = models.ImageField(upload_to='reponses/images/', blank=True, null=True)
+    video = models.FileField(upload_to='reponses/videos/', blank=True, null=True)
+    pdf = models.FileField(upload_to='reponses/pdfs/', blank=True, null=True)
 
     class Meta:
         ordering = ['date_reponse']

@@ -120,11 +120,18 @@ def delete_publication(request, pk):
 @require_POST
 def add_commentaire(request, pub_id):
     pub = Publication.objects.get(pk=pub_id)
-    form = CommentaireForm(request.POST)
+    form = CommentaireForm(request.POST, request.FILES)
     if form.is_valid():
         commentaire = form.save(commit=False)
         commentaire.auteur = request.user
         commentaire.publication = pub
+        # Gestion des fichiers uploadés
+        if form.cleaned_data.get('image'):
+            commentaire.image = form.cleaned_data['image']
+        if form.cleaned_data.get('video'):
+            commentaire.video = form.cleaned_data['video']
+        if form.cleaned_data.get('pdf'):
+            commentaire.pdf = form.cleaned_data['pdf']
         commentaire.save()
         # Rendu du commentaire seul pour insertion dynamique
         return render(request, 'core/partials/commentaire_item.html', {'commentaire': commentaire, 'user': request.user})
@@ -149,7 +156,7 @@ def delete_commentaire(request, pk):
 def add_reponse(request, commentaire_id):
     from django.shortcuts import get_object_or_404
     commentaire = get_object_or_404(Commentaire, pk=commentaire_id)
-    form = ReponseForm(request.POST)
+    form = ReponseForm(request.POST, request.FILES)
     if form.is_valid():
         reponse = form.save(commit=False)
         reponse.auteur = request.user
@@ -162,21 +169,16 @@ def add_reponse(request, commentaire_id):
                 reponse.parent = Reponse.objects.get(pk=parent_id)
             except Reponse.DoesNotExist:
                 reponse.parent = None
+        # Gestion des fichiers uploadés
+        if form.cleaned_data.get('image'):
+            reponse.image = form.cleaned_data['image']
+        if form.cleaned_data.get('video'):
+            reponse.video = form.cleaned_data['video']
+        if form.cleaned_data.get('pdf'):
+            reponse.pdf = form.cleaned_data['pdf']
         reponse.save()
         return render(request, 'core/partials/reponse_item.html', {'reponse': reponse, 'user': request.user})
     return HttpResponse(status=400)
-
-@login_required
-@require_POST
-def delete_reponse(request, pk):
-    try:
-        reponse = Reponse.objects.get(pk=pk)
-    except Reponse.DoesNotExist:
-        return JsonResponse({'success': False, 'error': 'Réponse introuvable'}, status=404)
-    if reponse.auteur != request.user:
-        return JsonResponse({'success': False, 'error': 'Non autorisé'}, status=403)
-    reponse.delete()
-    return HttpResponse(status=204)
 
 @login_required
 @require_POST
@@ -257,3 +259,16 @@ def publications_list(request):
         'publications': publications,
         'user': request.user,
     })
+
+@login_required
+@require_POST
+def delete_reponse(request, pk):
+    try:
+        reponse = Reponse.objects.get(pk=pk)
+    except Reponse.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Réponse introuvable'}, status=404)
+    if reponse.auteur != request.user:
+        return JsonResponse({'success': False, 'error': 'Non autorisé'}, status=403)
+    reponse.delete()
+    # Retourne une réponse vide (204) pour HTMX
+    return HttpResponse(status=204)
