@@ -1,9 +1,9 @@
 {% load static %}
-<div class="flex items-end gap-2 w-full">
+<div class="flex items-end gap-2 w-full max-w-5xl mx-auto">
     <form method="post" hx-post="{{ action_url }}" hx-target="#comments-list-{{ pub.pk }}" hx-swap="afterbegin" enctype="multipart/form-data" class="flex-1">
         {% csrf_token %}
-        <div class="flex flex-col rounded-2xl px-4 pt-2 pb-1 border border-blue-400/10 bg-[#f0f2f5]">
-            <textarea name="contenu" rows="1" maxlength="500" placeholder="Écrivez un commentaire..." class="w-full bg-transparent text-gray-900 border-0 focus:ring-0 focus:outline-none resize-none placeholder:text-gray-400 text-base"></textarea>
+        <div class="flex flex-col rounded-2xl px-4 pt-2 pb-1 border border-blue-400/10 bg-[#181f36]">
+            <textarea name="contenu" rows="1" maxlength="500" placeholder="Écrivez un commentaire..." class="w-full bg-transparent text-gray-100 border-0 focus:ring-0 focus:outline-none resize-none placeholder:text-gray-400 text-base"></textarea>
             <div class="flex items-center gap-3 mt-2">
                 <label class="cursor-pointer" title="Ajouter une image">
                     <svg class="w-6 h-6 text-blue-400 hover:text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a4 4 0 004 4h10a4 4 0 004-4V7a4 4 0 00-4-4H7a4 4 0 00-4 4z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11l2 2 4-4m2 6h.01" /></svg>
