@@ -147,15 +147,23 @@ def delete_commentaire(request, pk):
 @login_required
 @require_POST
 def add_reponse(request, commentaire_id):
-    commentaire = Commentaire.objects.get(pk=commentaire_id)
+    from django.shortcuts import get_object_or_404
+    commentaire = get_object_or_404(Commentaire, pk=commentaire_id)
     form = ReponseForm(request.POST)
     if form.is_valid():
         reponse = form.save(commit=False)
         reponse.auteur = request.user
         reponse.commentaire = commentaire
+        # Gestion du parent pour sous-réponse
+        parent_id = request.POST.get('parent')
+        if parent_id:
+            from core.models import Reponse
+            try:
+                reponse.parent = Reponse.objects.get(pk=parent_id)
+            except Reponse.DoesNotExist:
+                reponse.parent = None
         reponse.save()
         return render(request, 'core/partials/reponse_item.html', {'reponse': reponse, 'user': request.user})
-    # Rendu du formulaire avec erreurs (optionnel)
     return HttpResponse(status=400)
 
 @login_required

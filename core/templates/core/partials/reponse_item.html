@@ -1,11 +1,3 @@
-{#
-    Partial : reponse_item.html
-    Affiche une réponse à un commentaire ou à une autre réponse (récursif).
-    - Affiche l'auteur, la date, le contenu.
-    - Permet de répondre à une réponse (sous-réponse).
-    - Permet à l'auteur de supprimer sa réponse (HTMX).
-    - Gestion dynamique de l'affichage du formulaire de sous-réponse et suppression animée.
-#}
 {% load static %}
 <div id="reponse-{{ reponse.pk }}" class="reponse-item flex flex-col gap-1 ml-12 group">
     <div class="flex items-start gap-2">
@@ -30,8 +22,9 @@
     </div>
     <!-- Formulaire de sous-réponse (affiché dynamiquement) -->
     <div id="reponse-form-reponse-{{ reponse.pk }}" class="hidden mt-1 ml-6">
-        <form method="post" hx-post="{% url 'add_reponse' reponse.pk %}" hx-target="#reponses-list-reponse-{{ reponse.pk }}" hx-swap="afterbegin" class="flex gap-2 items-start reponse-form-reponse">
+        <form method="post" hx-post="{% url 'add_reponse' reponse.commentaire.pk %}" hx-target="#reponses-list-reponse-{{ reponse.pk }}" hx-swap="afterbegin" class="flex gap-2 items-start reponse-form-reponse">
             {% csrf_token %}
+            <input type="hidden" name="parent" value="{{ reponse.pk }}" />
             <textarea name="contenu" rows="1" maxlength="300" placeholder="Répondre à la réponse..." class="w-full px-3 py-1 rounded-lg bg-[#181f36] border border-blue-400/30 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"></textarea>
             <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-3 py-1 rounded-lg text-xs">Publier</button>
         </form>
