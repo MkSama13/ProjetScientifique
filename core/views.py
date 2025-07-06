@@ -60,6 +60,9 @@ def dashboard(request):
     for pub in publications:
         pub.commentaire_form = commentaire_form
         pub.commentaire_action_url = reverse('add_commentaire', args=[pub.pk])
+        # Access property once and store as attribute for template use
+        if callable(pub.has_mixed_file_types):
+            pub.has_mixed_file_types = pub.has_mixed_file_types()
     # Statistiques utilisateur
     nb_publications = publications.count()
     nb_commentaires = Commentaire.objects.filter(auteur=request.user).count()

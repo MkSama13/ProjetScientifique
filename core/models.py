@@ -37,6 +37,17 @@ class Publication(models.Model):
     def __str__(self):
         return f"{self.titre} par {self.auteur}"
 
+    @property
+    def has_mixed_file_types(self):
+        """
+        Returns True if the publication contains mixed file types among images, videos, and pdfs.
+        """
+        has_images = self.images.exists()
+        has_videos = self.videos.exists()
+        has_pdfs = self.pdfs.exists()
+        types_count = sum([has_images, has_videos, has_pdfs])
+        return types_count > 1
+
 # ==========================
 # Modèle pour les images associées à une publication
 # ==========================
