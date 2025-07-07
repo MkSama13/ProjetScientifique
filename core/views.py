@@ -55,7 +55,17 @@ def dashboard(request):
     else:
         form = PublicationForm()
     # Publications de l'utilisateur
+    tag_query = request.GET.get('tags', '').strip()
     publications = Publication.objects.filter(auteur=request.user)
+    if tag_query:
+        tag_list = [t.strip().lower() for t in tag_query.split(',') if t.strip()]
+        if tag_list:
+            q = Q()
+            for tag in tag_list:
+                q |= Q(tags__icontains=tag)
+            publications = publications.filter(q)
+    else:
+        publications = Publication.objects.filter(auteur=request.user)
     commentaire_form = CommentaireForm()
     for pub in publications:
         pub.commentaire_form = commentaire_form
@@ -253,11 +263,23 @@ def bloc_statistiques(request):
     })
 
 def publications_list(request):
+    # Recherche par tags (GET)
+    tag_query = request.GET.get('tags', '').strip()
     publications = Publication.objects.all().order_by('-date_pub')
+    if tag_query:
+        tag_list = [t.strip().lower() for t in tag_query.split(',') if t.strip()]
+        if tag_list:
+            q = Q()
+            for tag in tag_list:
+                q |= Q(tags__icontains=tag)
+            publications = publications.filter(q)
     commentaire_form = CommentaireForm()
     for pub in publications:
         pub.commentaire_form = commentaire_form
         pub.commentaire_action_url = reverse('add_commentaire', args=[pub.pk])
+    # Si la requête est une requête HTMX, ne retourner que le partial (évite la duplication)
+    if request.headers.get('HX-Request') == 'true':
+        return render(request, 'core/partials/publications_list.html', {'publications': publications, 'user': request.user})
     return render(request, 'core/publications.html', {
         'publications': publications,
         'user': request.user,
