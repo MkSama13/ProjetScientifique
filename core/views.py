@@ -4,6 +4,7 @@ from django.urls import reverse
 from django.template.loader import render_to_string
 import json
 import time
+from django.core.cache import cache
 from django.contrib.auth.decorators import login_required
 from allauth.account.views import SignupView
 from .forms import CustomSignupForm, PublicationForm, CommentaireForm, ReponseForm, CommuniqueForm
@@ -128,7 +129,16 @@ def delete_publication(request, pk):
         return JsonResponse({'success': False, 'error': 'Publication introuvable'}, status=404)
     if pub.auteur_id != request.user.id:
         return JsonResponse({'success': False, 'error': 'Non autorisé'}, status=403)
+    
+    pub_id = pub.id
     pub.delete()
+
+    # Ajouter l'ID de la publication supprimée à une liste dans le cache
+    deleted_ids = cache.get('deleted_publication_ids', [])
+    if pub_id not in deleted_ids:
+        deleted_ids.append(pub_id)
+    cache.set('deleted_publication_ids', deleted_ids, timeout=60) # Garder la liste pendant 60s
+
     # Retourner une réponse vide pour HTMX (pas de JSON, pas de texte)
     return HttpResponse(status=204)
 
@@ -304,33 +314,30 @@ def delete_reponse(request, pk):
 def stream_publications(request):
     def event_stream():
         last_id = 0
-        # Au premier chargement, on pourrait récupérer le dernier ID affiché côté client,
-        # mais pour simplifier, on commence à 0 et on enverra toutes les publications la première fois.
         
         while True:
-            # On ne récupère que les publications plus récentes que la dernière envoyée
+            # 1. Vérifier les nouvelles publications
             new_pubs = Publication.objects.filter(id__gt=last_id).order_by('id')
-            
             if new_pubs:
-                # On met à jour le dernier ID avec le plus récent de la nouvelle liste
                 last_id = new_pubs.last().id
-                
                 for pub in new_pubs:
-                    # On rend le template de la carte de publication en HTML
                     html_content = render_to_string(
                         'core/partials/publication_card.html',
                         {'pub': pub, 'user': request.user}
                     )
-                    
-                    # On prépare les données à envoyer : l'ID et le HTML
-                    data = {
-                        'id': pub.id,
-                        'html': html_content
-                    }
-                    
-                    # On envoie les données au format SSE
+                    data = {'id': pub.id, 'html': html_content}
+                    # Envoi d'un événement "message" par défaut pour l'ajout
                     yield f"data: {json.dumps(data)}\n\n"
-            
+
+            # 2. Vérifier les publications supprimées depuis le cache
+            deleted_ids = cache.get('deleted_publication_ids', [])
+            if deleted_ids:
+                for pub_id in deleted_ids:
+                    # Envoi d'un événement nommé "publication_deleted"
+                    yield f"event: publication_deleted\ndata: {json.dumps({'id': pub_id})}\n\n"
+                # Vider la liste du cache une fois les IDs envoyés
+                cache.set('deleted_publication_ids', [], timeout=60)
+
             # Attendre avant la prochaine vérification
             time.sleep(3)
             

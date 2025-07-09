@@ -137,6 +137,20 @@
         0% { background-color: rgba(59, 130, 246, 0.3); } /* blue-500/30 */
         100% { background-color: rgba(16, 22, 36, 0.92); } /* bg-[#101624]/90 */
     }
+    .publication-fade-out {
+        animation: fade-out-animation 0.5s ease-out forwards;
+    }
+    @keyframes fade-out-animation {
+        from {
+            opacity: 1;
+            transform: scale(1);
+        }
+        to {
+            opacity: 0;
+            transform: scale(0.95);
+            margin-bottom: -80px; /* Compense la hauteur pour une transition douce */
+        }
+    }
 </style>
 <script>
 // Dynamique : si le champ de recherche par tag est vidé, recharge dynamiquement toutes les publications via HTMX sans recharger la page
@@ -154,6 +168,7 @@ if (tagInput) {
 // SSE pour les mises à jour en temps réel
 const eventSource = new EventSource("{% url 'stream_publications' %}");
 
+// Gère l'ajout de nouvelles publications
 eventSource.onmessage = (e) => {
     const data = JSON.parse(e.data);
     const publicationsList = document.getElementById("publications-list");
@@ -174,6 +189,23 @@ eventSource.onmessage = (e) => {
         }
     }
 };
+
+// Gère la suppression de publications
+eventSource.addEventListener('publication_deleted', (e) => {
+    const data = JSON.parse(e.data);
+    const pubId = `pub-${data.id}`;
+    const pubElement = document.getElementById(pubId);
+
+    if (pubElement) {
+        // Appliquer l'animation de disparition
+        pubElement.classList.add('publication-fade-out');
+
+        // Supprimer l'élément du DOM après l'animation
+        setTimeout(() => {
+            pubElement.remove();
+        }, 500); // Doit correspondre à la durée de l'animation CSS
+    }
+});
 
 eventSource.onerror = (err) => {
     console.error("EventSource failed:", err);
