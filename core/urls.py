@@ -4,9 +4,15 @@
 # Chaque route est associée à une vue correspondante dans views.py
 #
 from django.urls import path
-from .views import add_commentaire, delete_commentaire, add_reponse, delete_reponse, edit_publication, bloc_activite_notifications, bloc_statistiques, dashboard, publications_list
+from .views import (
+    add_commentaire, delete_commentaire, add_reponse, delete_reponse, 
+    edit_publication, bloc_activite_notifications, bloc_statistiques, 
+    dashboard, publications_list, stream_publications
+)
 
 urlpatterns = [
+    # SSE Stream pour les publications
+    path('stream-publications/', stream_publications, name='stream_publications'),
     # Tableau de bord étudiant
     path('dashboard/', dashboard, name='dashboard'),
     # Liste des publications

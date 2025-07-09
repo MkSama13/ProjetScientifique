@@ -1,0 +1,10 @@
+Contexte : Projet Django + Tailwind CSS + HTMX.
+Objectif : dans la page “Toutes publications” (template publications.html) et la page dashboard etudiant.html, faire en sorte que :
+1. Les nouvelles publications apparaissent toutes les 10?secondes en haut du flux sans recharger entièrement la page publications.html et ce d’une manière dynamique.
+2. Les nouveaux commentaires (et réponses) d’une publication donnée apparaissent toutes les instantanément?dans la section commentaire et la section réponse dans le div `#comments-container` une fois publiés et ce sans conflit de style ni modification.
+3. Vériefies qu’il n’y ait pas de doublon lorsqu’un commentaire ou une réponse est est publiés ?
+4. Lorsque une réponse est publiée. Le champ de texte de cette reponse se ferme automatiquement.
+Livrable : 
+- Le markup HTML avec les attributs HTMX (`hx-get`, `hx-trigger`, `hx-swap`) pour publications et pour commentaires.
+- Les modifications Django si besoin (routage API minimal).
+- Aucun JavaScript additionnel, tout fait via HTMX.

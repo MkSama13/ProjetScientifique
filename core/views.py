@@ -1,6 +1,9 @@
 from django.shortcuts import render
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect, HttpResponse, StreamingHttpResponse
 from django.urls import reverse
+from django.template.loader import render_to_string
+import json
+import time
 from django.contrib.auth.decorators import login_required
 from allauth.account.views import SignupView
 from .forms import CustomSignupForm, PublicationForm, CommentaireForm, ReponseForm, CommuniqueForm
@@ -297,3 +300,38 @@ def delete_reponse(request, pk):
     reponse.delete()
     # Retourne une réponse vide (204) pour HTMX
     return HttpResponse(status=204)
+
+def stream_publications(request):
+    def event_stream():
+        last_id = 0
+        # Au premier chargement, on pourrait récupérer le dernier ID affiché côté client,
+        # mais pour simplifier, on commence à 0 et on enverra toutes les publications la première fois.
+        
+        while True:
+            # On ne récupère que les publications plus récentes que la dernière envoyée
+            new_pubs = Publication.objects.filter(id__gt=last_id).order_by('id')
+            
+            if new_pubs:
+                # On met à jour le dernier ID avec le plus récent de la nouvelle liste
+                last_id = new_pubs.last().id
+                
+                for pub in new_pubs:
+                    # On rend le template de la carte de publication en HTML
+                    html_content = render_to_string(
+                        'core/partials/publication_card.html',
+                        {'pub': pub, 'user': request.user}
+                    )
+                    
+                    # On prépare les données à envoyer : l'ID et le HTML
+                    data = {
+                        'id': pub.id,
+                        'html': html_content
+                    }
+                    
+                    # On envoie les données au format SSE
+                    yield f"data: {json.dumps(data)}\n\n"
+            
+            # Attendre avant la prochaine vérification
+            time.sleep(3)
+            
+    return StreamingHttpResponse(event_stream(), content_type='text/event-stream')

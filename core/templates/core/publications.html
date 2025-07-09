@@ -130,6 +130,13 @@
         from { opacity: 0; transform: translateX(40px); }
         to { opacity: 1; transform: translateX(0); }
     }
+    .new-publication-flash {
+        animation: flash-animation 1.5s ease-out;
+    }
+    @keyframes flash-animation {
+        0% { background-color: rgba(59, 130, 246, 0.3); } /* blue-500/30 */
+        100% { background-color: rgba(16, 22, 36, 0.92); } /* bg-[#101624]/90 */
+    }
 </style>
 <script>
 // Dynamique : si le champ de recherche par tag est vidé, recharge dynamiquement toutes les publications via HTMX sans recharger la page
@@ -143,5 +150,35 @@ if (tagInput) {
         }
     });
 }
+
+// SSE pour les mises à jour en temps réel
+const eventSource = new EventSource("{% url 'stream_publications' %}");
+
+eventSource.onmessage = (e) => {
+    const data = JSON.parse(e.data);
+    const publicationsList = document.getElementById("publications-list");
+    const pubId = `pub-${data.id}`;
+
+    // On vérifie si la publication n'est pas déjà affichée
+    if (!document.getElementById(pubId)) {
+        // La publication n'existe pas, on insère le HTML reçu au début de la liste
+        publicationsList.insertAdjacentHTML('afterbegin', data.html);
+        
+        // On ajoute une classe pour l'animation et on la retire après
+        const newPubElement = document.getElementById(pubId);
+        if (newPubElement) {
+            newPubElement.classList.add('new-publication-flash');
+            setTimeout(() => {
+                newPubElement.classList.remove('new-publication-flash');
+            }, 1500); // Durée de l'animation
+        }
+    }
+};
+
+eventSource.onerror = (err) => {
+    console.error("EventSource failed:", err);
+    eventSource.close();
+};
+
 </script>
 {% endblock %}
