@@ -1,106 +1,111 @@
 {% load static %}
-<div id="reponse-{{ reponse.pk }}" class="reponse-item flex flex-col gap-1 ml-16 group">
-    <div class="flex items-start gap-3">
-        <!-- Avatar supprimé -->
-        <div class="flex-1">
-            <div class="bg-white/10 rounded-2xl px-4 py-2 shadow border border-blue-400/10">
-                <div class="flex items-center gap-2 mb-1">
-                    <span class="font-semibold text-blue-200">{{ reponse.auteur.get_full_name|default:reponse.auteur.username }}</span>
-                    <span class="text-xs text-gray-400">{{ reponse.date_reponse|date:'d/m/Y H:i' }}</span>
-                </div>
-                <div class="text-white text-base break-words">{{ reponse.contenu }}</div>
-                {% if reponse.image or reponse.video or reponse.pdf %}
-                <div class="flex flex-col gap-1 mt-2">
-                    {% if reponse.image %}
-                        <a href="{{ reponse.image.url }}" target="_blank" class="text-xs text-blue-300 hover:underline flex items-center gap-1">
-                            <span>{{ reponse.image.name|slice:'reponses/images/' }}</span>
-                            <span class="text-gray-400">[{{ reponse.image.name|cut:'.'|slice:'-3:'|upper }}]</span>
-                        </a>
-                    {% endif %}
-                    {% if reponse.video %}
-                        <a href="{{ reponse.video.url }}" target="_blank" class="text-xs text-pink-300 hover:underline flex items-center gap-1">
-                            <span>{{ reponse.video.name|slice:'reponses/videos/' }}</span>
-                            <span class="text-gray-400">[{{ reponse.video.name|cut:'.'|slice:'-3:'|upper }}]</span>
-                        </a>
-                    {% endif %}
-                    {% if reponse.pdf %}
-                        <a href="{{ reponse.pdf.url }}" target="_blank" class="text-xs text-red-400 hover:underline flex items-center gap-1">
-                            <span>{{ reponse.pdf.name|slice:'reponses/pdfs/' }}</span>
-                            <span class="text-gray-400">[PDF]</span>
-                        </a>
-                    {% endif %}
-                </div>
+<div id="reponse-{{ reponse.pk }}" class="reponse-item flex items-start space-x-3 mt-3 ml-10">
+    <!-- Avatar -->
+    <div class="flex-shrink-0">
+        <div class="rounded-full bg-gray-500 w-8 h-8 flex items-center justify-center text-white font-bold border-2 border-gray-700">
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+        </div>
+    </div>
+
+    <div class="flex-1">
+        <!-- Conteneur "bulle" de la réponse -->
+        <div class="bg-gray-700/50 rounded-xl px-3 py-2">
+            <span class="font-bold text-blue-200 text-sm">{{ reponse.auteur.get_full_name|default:reponse.auteur.username }}</span>
+            <p class="text-white text-sm break-words">{{ reponse.contenu }}</p>
+
+            <!-- Fichiers joints -->
+            {% if reponse.image or reponse.video or reponse.pdf %}
+            <div class="mt-2 border-t border-gray-600 pt-2">
+                {% if reponse.image %}
+                    <a href="{{ reponse.image.url }}" target="_blank" class="text-xs text-blue-400 hover:underline flex items-center gap-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l-1.586-1.586a2 2 0 00-2.828 0L6 14"/></svg>
+                        <span>{{ reponse.image.name|slice:'reponses/images/' }}</span>
+                    </a>
+                {% endif %}
+                {% if reponse.video %}
+                     <a href="{{ reponse.video.url }}" target="_blank" class="text-xs text-pink-400 hover:underline flex items-center gap-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M4 6h8a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2z" /></svg>
+                        <span>{{ reponse.video.name|slice:'reponses/videos/' }}</span>
+                    </a>
+                {% endif %}
+                {% if reponse.pdf %}
+                    <a href="{{ reponse.pdf.url }}" target="_blank" class="text-xs text-red-400 hover:underline flex items-center gap-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                        <span>{{ reponse.pdf.name|slice:'reponses/pdfs/' }}</span>
+                    </a>
                 {% endif %}
             </div>
-            <div class="flex items-center gap-4 mt-1 ml-2">
-                <span class="text-xs text-blue-400 font-semibold cursor-pointer hover:underline" onclick="toggleReponseFormReponse({{ reponse.pk }})">Répondre</span>
-                {% if reponse.auteur == user %}
-                <form method="POST" hx-post="{% url 'delete_reponse' reponse.pk %}" hx-target="#reponse-{{ reponse.pk }}" hx-swap="outerHTML" class="inline">
+            {% endif %}
+        </div>
+
+        <!-- Actions sous la réponse -->
+        <div class="flex items-center space-x-3 mt-1 px-2">
+            <span class="text-xs text-gray-500 font-semibold">{{ reponse.date_reponse|date:'d M, H:i' }}</span>
+            <button onclick="toggleReponseFormReponse({{ reponse.pk }})" class="text-xs text-blue-400 font-bold hover:underline">Répondre</button>
+            {% if reponse.auteur == user %}
+            <form method="POST" hx-post="{% url 'delete_reponse' reponse.pk %}" hx-target="#reponse-{{ reponse.pk }}" hx-swap="outerHTML" class="inline">
+                {% csrf_token %}
+                <button type="submit" class="text-xs text-red-400 font-bold hover:underline bg-transparent border-0 p-0">Supprimer</button>
+            </form>
+            {% endif %}
+        </div>
+
+        <!-- Formulaire de sous-réponse -->
+        <div id="reponse-form-reponse-{{ reponse.pk }}" class="hidden mt-2 flex items-start space-x-3">
+            <div class="flex-shrink-0">
+                <div class="rounded-full bg-gray-600 w-8 h-8 flex items-center justify-center text-white font-bold border-2 border-gray-700">
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                </div>
+            </div>
+            <div class="flex-1">
+                <form method="post" enctype="multipart/form-data" hx-post="{% url 'add_reponse' reponse.commentaire.pk %}" hx-target="#reponses-list-reponse-{{ reponse.pk }}" hx-swap="beforeend" class="relative file-upload-form" hx-on::after-swap="this.reset(); clearFilePreview(this);">
                     {% csrf_token %}
-                    <button type="submit" class="text-red-400 text-xs font-semibold cursor-pointer hover:underline bg-transparent border-0 p-0" style="background:none;">Supprimer</button>
-                </form>
-                {% endif %}
-            </div>
-            <!-- Formulaire de sous-réponse moderne -->
-            <div id="reponse-form-reponse-{{ reponse.pk }}" class="hidden mt-2">
-                <div class="flex items-end gap-2 w-full">
-                    <!-- Avatar supprimé dans le formulaire de sous-réponse -->
-                    <form method="post" enctype="multipart/form-data" hx-post="{% url 'add_reponse' reponse.commentaire.pk %}" hx-target="#reponses-list-reponse-{{ reponse.pk }}" hx-swap="afterbegin" class="flex-1">
-                        {% csrf_token %}
-                        <input type="hidden" name="parent" value="{{ reponse.pk }}" />
-                        <div class="flex flex-col rounded-2xl px-4 pt-2 pb-1 border border-blue-400/10 bg-[#181f36]">
-                            <textarea name="contenu" rows="1" maxlength="300" placeholder="Répondre à {{ reponse.auteur.get_full_name|default:reponse.auteur.username }}..." class="w-full bg-transparent text-gray-100 border-0 focus:ring-0 focus:outline-none resize-none placeholder:text-gray-400 text-base"></textarea>
-                            <div class="flex items-center gap-3 mt-2">
-                                <label class="cursor-pointer" title="Ajouter une image">
-                                    <svg class="w-6 h-6 text-blue-400 hover:text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a4 4 0 004 4h10a4 4 0 004-4V7a4 4 0 00-4-4H7a4 4 0 00-4 4z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11l2 2 4-4m2 6h.01" /></svg>
-                                    <input type="file" name="image" accept="image/*" class="hidden" />
-                                </label>
-                                <label class="cursor-pointer" title="Ajouter une vidéo">
-                                    <svg class="w-6 h-6 text-pink-400 hover:text-pink-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M4 6h8a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2z" /></svg>
-                                    <input type="file" name="video" accept="video/*" class="hidden" />
-                                </label>
-                                <label class="cursor-pointer" title="Ajouter un PDF">
-                                    <svg class="w-6 h-6 text-red-400 hover:text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /><rect width="20" height="20" x="2" y="2" rx="2" fill="none" /></svg>
-                                    <input type="file" name="pdf" accept="application/pdf" class="hidden" />
-                                </label>
-                                <button type="submit" class="ml-auto flex items-center justify-center bg-transparent border-0 p-0" style="background:none;">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-blue-500 hover:text-blue-700" fill="currentColor" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
-                                </button>
-                            </div>
+                    <input type="hidden" name="parent" value="{{ reponse.pk }}" />
+                    <div class="relative">
+                        <textarea name="contenu" rows="1" maxlength="300" placeholder="Répondre à {{ reponse.auteur.get_full_name|default:reponse.auteur.username }}..." 
+                                  class="w-full bg-gray-700/80 rounded-full py-2 pl-4 pr-28 text-white placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:outline-none resize-none"
+                                  oninput="this.style.height = 'auto'; this.style.height = (this.scrollHeight) + 'px';"></textarea>
+                        <div class="absolute right-2 top-1/2 -translate-y-1/2 flex items-center space-x-1">
+                            <label class="cursor-pointer p-1 rounded-full hover:bg-gray-600" title="Ajouter une image">
+                                <svg class="w-5 h-5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l-1.586-1.586a2 2 0 00-2.828 0L6 14"/></svg>
+                                <input type="file" name="image" accept="image/*" class="hidden file-input" data-type="image">
+                            </label>
+                            <label class="cursor-pointer p-1 rounded-full hover:bg-gray-600" title="Ajouter une vidéo">
+                                <svg class="w-5 h-5 text-pink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M4 6h8a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2z" /></svg>
+                                <input type="file" name="video" accept="video/*" class="hidden file-input" data-type="video">
+                            </label>
+                            <label class="cursor-pointer p-1 rounded-full hover:bg-gray-600" title="Ajouter un PDF">
+                                <svg class="w-5 h-5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                                <input type="file" name="pdf" accept="application/pdf" class="hidden file-input" data-type="pdf">
+                            </label>
+                            <button type="submit" class="p-1 rounded-full hover:bg-blue-600">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-400 group-hover:text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+                            </button>
                         </div>
-                    </form>
-                </div>
+                    </div>
+                    <!-- Conteneur pour la prévisualisation du fichier -->
+                    <div class="file-preview-container mt-2"></div>
+                </form>
             </div>
-            <!-- Réponses imbriquées -->
-            <div id="reponses-list-reponse-{{ reponse.pk }}" class="mt-2">
-                {% for rep in reponse.reponses.all %}
-                    {% include 'core/partials/reponse_item.html' with reponse=rep user=user %}
-                    <hr class="my-4 border-t-2 border-blue-900/40 shadow-sm rounded-full w-11/12 ml-8" />
-                {% endfor %}
-            </div>
+        </div>
+
+        <!-- Réponses imbriquées -->
+        <div id="reponses-list-reponse-{{ reponse.pk }}" class="mt-2">
+            {% for child_reponse in reponse.reponses.all %}
+                {% include 'core/partials/reponse_item.html' with reponse=child_reponse user=user %}
+            {% endfor %}
         </div>
     </div>
 </div>
+
 <script>
 function toggleReponseFormReponse(reponseId) {
     const form = document.getElementById('reponse-form-reponse-' + reponseId);
-    if (form) form.classList.toggle('hidden');
-}
-if (window.htmx) {
-    document.body.addEventListener('htmx:beforeSwap', function(evt) {
-        if (evt.detail.xhr && evt.detail.xhr.status === 204 && evt.target.classList.contains('reponse-item')) {
-            evt.detail.shouldSwap = false;
-            evt.target.style.transition = 'opacity 0.4s';
-            evt.target.style.opacity = 0;
-            setTimeout(function() {
-                evt.target.remove();
-            }, 400);
+    if (form) {
+        form.classList.toggle('hidden');
+        if (!form.classList.contains('hidden')) {
+            form.querySelector('textarea').focus();
         }
-        if (evt.detail.target && evt.detail.target.id && evt.detail.target.id.startsWith('reponses-list-reponse-')) {
-            const reponseId = evt.detail.target.id.replace('reponses-list-reponse-', '');
-            const form = document.getElementById('reponse-form-reponse-' + reponseId);
-            if (form) form.classList.add('hidden');
-        }
-    });
+    }
 }
 </script>

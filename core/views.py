@@ -187,23 +187,29 @@ def add_reponse(request, commentaire_id):
         reponse = form.save(commit=False)
         reponse.auteur = request.user
         reponse.commentaire = commentaire
-        # Gestion du parent pour sous-réponse
+        
         parent_id = request.POST.get('parent')
+        is_nested_reply = False
         if parent_id:
             from core.models import Reponse
             try:
                 reponse.parent = Reponse.objects.get(pk=parent_id)
+                is_nested_reply = True
             except Reponse.DoesNotExist:
                 reponse.parent = None
-        # Gestion des fichiers uploadés
-        if form.cleaned_data.get('image'):
-            reponse.image = form.cleaned_data['image']
-        if form.cleaned_data.get('video'):
-            reponse.video = form.cleaned_data['video']
-        if form.cleaned_data.get('pdf'):
-            reponse.pdf = form.cleaned_data['pdf']
+
+        if form.cleaned_data.get('image'): reponse.image = form.cleaned_data['image']
+        if form.cleaned_data.get('video'): reponse.video = form.cleaned_data['video']
+        if form.cleaned_data.get('pdf'): reponse.pdf = form.cleaned_data['pdf']
         reponse.save()
-        return render(request, 'core/partials/reponse_item.html', {'reponse': reponse, 'user': request.user})
+
+        # Si c'est une réponse imbriquée, ne renvoyer que l'item.
+        # Sinon, renvoyer le wrapper complet.
+        if is_nested_reply:
+            return render(request, 'core/partials/reponse_item.html', {'reponse': reponse, 'user': request.user})
+        else:
+            return render(request, 'core/partials/reponses_wrapper.html', {'commentaire': commentaire, 'user': request.user})
+            
     return HttpResponse(status=400)
 
 @login_required
@@ -290,6 +296,8 @@ def publications_list(request):
     for pub in publications:
         pub.commentaire_form = commentaire_form
         pub.commentaire_action_url = reverse('add_commentaire', args=[pub.pk])
+        pub.prefetched_commentaires = pub.commentaires.all()
+
     # Si la requête est une requête HTMX, ne retourner que le partial (évite la duplication)
     if request.headers.get('HX-Request') == 'true':
         return render(request, 'core/partials/publications_list.html', {'publications': publications, 'user': request.user})

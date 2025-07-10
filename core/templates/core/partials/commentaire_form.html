@@ -1,46 +1,117 @@
 {% load static %}
-<div class="flex items-end gap-2 w-full max-w-5xl mx-auto">
-    <form method="post" hx-post="{{ action_url }}" hx-target="#comments-list-{{ pub.pk }}" hx-swap="afterbegin" enctype="multipart/form-data" class="flex-1">
+<form method="post" hx-post="{{ action_url }}" hx-target="#comments-list-{{ pub.pk }}" hx-swap="afterbegin" enctype="multipart/form-data" hx-on::after-swap="this.reset(); clearFilePreview(this);" class="flex items-start space-x-3 w-full file-upload-form">
+    <!-- Avatar -->
+    <div class="flex-shrink-0">
+        <div class="rounded-full bg-gray-600 w-10 h-10 flex items-center justify-center text-white font-bold border-2 border-gray-700">
+            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+        </div>
+    </div>
+
+    <div class="flex-1 relative">
         {% csrf_token %}
-        <div class="flex flex-col rounded-2xl px-4 pt-2 pb-1 border border-blue-400/10 bg-[#181f36]">
-            <textarea name="contenu" rows="1" maxlength="500" placeholder="Écrivez un commentaire..." class="w-full bg-transparent text-gray-100 border-0 focus:ring-0 focus:outline-none resize-none placeholder:text-gray-400 text-base"></textarea>
-            <div class="flex items-center gap-3 mt-2">
-                <label class="cursor-pointer" title="Ajouter une image">
-                    <svg class="w-6 h-6 text-blue-400 hover:text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a4 4 0 004 4h10a4 4 0 004-4V7a4 4 0 00-4-4H7a4 4 0 00-4 4z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11l2 2 4-4m2 6h.01" /></svg>
-                    <input type="file" name="image" accept="image/*" class="hidden" />
+        <div class="relative">
+            <textarea name="contenu" rows="1" maxlength="500" placeholder="Écrivez un commentaire..." 
+                      class="w-full bg-gray-700/80 rounded-2xl py-2 pl-4 pr-28 text-white placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:outline-none resize-none transition-all duration-200"
+                      oninput="this.style.height = 'auto'; this.style.height = (this.scrollHeight) + 'px';"></textarea>
+            
+            <div class="absolute right-2 top-1/2 -translate-y-1/2 flex items-center space-x-1">
+                <label class="cursor-pointer p-1 rounded-full hover:bg-gray-600" title="Ajouter une image">
+                    <svg class="w-5 h-5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l-1.586-1.586a2 2 0 00-2.828 0L6 14"/></svg>
+                    <input type="file" name="image" accept="image/*" class="hidden file-input" data-type="image">
                 </label>
-                <label class="cursor-pointer" title="Ajouter une vidéo">
-                    <svg class="w-6 h-6 text-pink-400 hover:text-pink-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M4 6h8a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2z" /></svg>
-                    <input type="file" name="video" accept="video/*" class="hidden" />
+                <label class="cursor-pointer p-1 rounded-full hover:bg-gray-600" title="Ajouter une vidéo">
+                    <svg class="w-5 h-5 text-pink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M4 6h8a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2z" /></svg>
+                    <input type="file" name="video" accept="video/*" class="hidden file-input" data-type="video">
                 </label>
-                <label class="cursor-pointer" title="Ajouter un PDF">
-                    <svg class="w-6 h-6 text-red-400 hover:text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /><rect width="20" height="20" x="2" y="2" rx="2" fill="none" /></svg>
-                    <input type="file" name="pdf" accept="application/pdf" class="hidden" />
+                <label class="cursor-pointer p-1 rounded-full hover:bg-gray-600" title="Ajouter un PDF">
+                    <svg class="w-5 h-5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                    <input type="file" name="pdf" accept="application/pdf" class="hidden file-input" data-type="pdf">
                 </label>
-                <button type="submit" class="ml-auto flex items-center justify-center bg-transparent border-0 p-0" style="background:none;">
-                    <!-- Facebook-like paper plane icon -->
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-blue-500 hover:text-blue-700" fill="currentColor" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+                <button type="submit" class="p-1 rounded-full hover:bg-blue-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-400 group-hover:text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
                 </button>
             </div>
         </div>
-    </form>
-</div>
-<style>
-.group\/comment textarea {
-    background: transparent !important;
-    color: #222 !important;
-    border: none !important;
-    border-radius: 1.25rem !important;
-    font-size: 1rem;
-    padding: 0.75rem 1rem;
-    transition: border 0.18s, box-shadow 0.18s;
-    box-shadow: none;
-    min-height: 2.5rem;
-    resize: none;
-}
-.group\/comment textarea:focus {
-    border-color: #60a5fa !important;
-    outline: none;
-    box-shadow: 0 0 0 2px #60a5fa44;
-}
-</style>
+        <!-- Conteneur pour la prévisualisation du fichier -->
+        <div class="file-preview-container mt-2"></div>
+    </div>
+</form>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // S'assure que le script ne s'exécute qu'une fois
+    if (!window.filePreviewScriptLoaded) {
+        window.filePreviewScriptLoaded = true;
+
+        function handleFileChange(event) {
+            const input = event.target;
+            const form = input.closest('.file-upload-form');
+            if (!form) return;
+
+            const previewContainer = form.querySelector('.file-preview-container');
+            const file = input.files[0];
+            const fileType = input.dataset.type;
+
+            // Nettoyer les autres inputs de fichier dans le même formulaire
+            form.querySelectorAll('.file-input').forEach(otherInput => {
+                if (otherInput !== input) {
+                    otherInput.value = '';
+                }
+            });
+
+            // Nettoyer la prévisualisation précédente
+            previewContainer.innerHTML = '';
+
+            if (file) {
+                let bgColor, textColor, icon;
+                switch (fileType) {
+                    case 'image':
+                        bgColor = 'bg-blue-500/20';
+                        textColor = 'text-blue-300';
+                        break;
+                    case 'video':
+                        bgColor = 'bg-pink-500/20';
+                        textColor = 'text-pink-300';
+                        break;
+                    case 'pdf':
+                        bgColor = 'bg-red-500/20';
+                        textColor = 'text-red-300';
+                        break;
+                    default:
+                        bgColor = 'bg-gray-500/20';
+                        textColor = 'text-gray-300';
+                }
+
+                const previewBadge = `
+                    <div class="${bgColor} ${textColor} text-xs font-semibold px-3 py-1 rounded-full inline-flex items-center gap-2">
+                        <span>${file.name}</span>
+                        <button type="button" class="cancel-file-btn font-bold text-lg">&times;</button>
+                    </div>
+                `;
+                previewContainer.innerHTML = previewBadge;
+
+                previewContainer.querySelector('.cancel-file-btn').addEventListener('click', function() {
+                    input.value = ''; // Efface le fichier de l'input
+                    previewContainer.innerHTML = ''; // Supprime le badge
+                });
+            }
+        }
+
+        // Fonction pour nettoyer la prévisualisation (appelée par HTMX)
+        window.clearFilePreview = function(formElement) {
+            const previewContainer = formElement.querySelector('.file-preview-container');
+            if (previewContainer) {
+                previewContainer.innerHTML = '';
+            }
+        }
+
+        // Attacher l'événement au corps du document pour gérer les éléments dynamiques
+        document.body.addEventListener('change', function(event) {
+            if (event.target.classList.contains('file-input')) {
+                handleFileChange(event);
+            }
+        });
+    }
+});
+</script>
+

@@ -1,0 +1,17 @@
+{% with reponses=commentaire.reponses.all %}
+    {% if reponses %}
+        <div id="toggle-reponses-btn-{{ commentaire.pk }}" class="flex items-center gap-2 mt-2 cursor-pointer select-none text-xs text-blue-300 hover:underline font-semibold" onclick="toggleReponses('{{ commentaire.pk }}')">
+            <span id="reponse-count-{{ commentaire.pk }}">
+                Voir les {{ reponses|length }} réponse{{ reponses|length|pluralize }}
+            </span>
+            <svg id="chevron-{{ commentaire.pk }}" class="w-4 h-4 ml-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+        </div>
+    {% endif %}
+    <div id="reponses-list-{{ commentaire.pk }}" class="mt-2 {% if not reponses %}hidden{% endif %}">
+        {% for reponse in reponses %}
+            {% if not reponse.parent %}
+                {% include 'core/partials/reponse_item.html' with reponse=reponse user=user %}
+            {% endif %}
+        {% endfor %}
+    </div>
+{% endwith %}

@@ -1,10 +1,62 @@
-Contexte : Projet Django + Tailwind CSS + HTMX.
-Objectif : dans la page “Toutes publications” (template publications.html) et la page dashboard etudiant.html, faire en sorte que :
-1. Les nouvelles publications apparaissent toutes les 10?secondes en haut du flux sans recharger entièrement la page publications.html et ce d’une manière dynamique.
-2. Les nouveaux commentaires (et réponses) d’une publication donnée apparaissent toutes les instantanément?dans la section commentaire et la section réponse dans le div `#comments-container` une fois publiés et ce sans conflit de style ni modification.
-3. Vériefies qu’il n’y ait pas de doublon lorsqu’un commentaire ou une réponse est est publiés ?
-4. Lorsque une réponse est publiée. Le champ de texte de cette reponse se ferme automatiquement.
-Livrable : 
-- Le markup HTML avec les attributs HTMX (`hx-get`, `hx-trigger`, `hx-swap`) pour publications et pour commentaires.
-- Les modifications Django si besoin (routage API minimal).
-- Aucun JavaScript additionnel, tout fait via HTMX.
+Prompt : Implémentation avec SSE (Server-Sent Events)
+Objectif :
+Des commentaires en temps réel plus performants que le polling, avec en adaptant le tout à la structure actuel du projet et lignes de code du projet et ce sans générer des erreurs ou des incohérences dans le projet :
+•	Flux SSE pour des updates instantanés
+•	Géré par AlpineJS pour les sections ouvertes
+Instructions pour l'IA :
+1.	Backend (Django) :
+o	Crée une vue stream_commentaires qui envoie un flux SSE des nouveaux commentaires.
+o	Utilise StreamingHttpResponse et une boucle infinie avec time.sleep(1).
+2.	Frontend (JavaScript/AlpineJS) :
+o	Initialise un EventSource pour écouter le flux SSE.
+o	Met à jour le DOM uniquement si la section est ouverte (if openComments).
+3.	Optimisation :
+o	Ajoute un paramètre last_id pour ne recevoir que les nouveaux commentaires.
+Code Demandé :
+python
+
+# views.py
+from django.http import StreamingHttpResponse
+import json, time
+
+def stream_commentaires(request, publication_id):
+    def event_stream():
+        last_id = 0
+        while True:
+            nouveaux_coms = Commentaire.objects.filter(
+                publication_id=publication_id, 
+                id__gt=last_id
+            ).order_by('-id')
+            if nouveaux_coms.exists():
+                last_id = nouveaux_coms.first().id
+                yield f"data: {json.dumps([{'id': c.id, 'content': c.contenu} for c in nouveaux_coms])}\n\n"
+            time.sleep(1)
+    return StreamingHttpResponse(event_stream(), content_type='text/event-stream')
+javascript
+
+// Dans le template
+<div x-data="{ openComments: false, commentaires: [] }">
+    <button @click="openComments = !openComments">?? Commentaires</button>
+    
+    <div x-show="openComments" x-transition>
+        <template x-for="com in commentaires" :key="com.id">
+            <p x-text="`${com.auteur}: ${com.content}`"></p>
+        </template>
+        
+        <form @submit.prevent="fetch(...)">
+            <!-- Formulaire classique -->
+        </form>
+    </div>
+</div>
+
+<script>
+    const publicationId = {{ publication.id }};
+    const eventSource = new EventSource(`/stream_commentaires/${publicationId}/`);
+    
+    eventSource.onmessage = (e) => {
+        const data = JSON.parse(e.data);
+        if (Alpine.store('openComments')) {  // Si la section est ouverte
+            Alpine.store('commentaires', [...data, ...Alpine.store('commentaires')]);
+        }
+    };
+</script>
