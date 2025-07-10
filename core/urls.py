@@ -7,13 +7,12 @@ from django.urls import path
 from .views import (
     add_commentaire, delete_commentaire, add_reponse, delete_reponse, 
     edit_publication, bloc_activite_notifications, bloc_statistiques, 
-    dashboard, publications_list, stream_posts, stream_deletions
+    dashboard, publications_list, stream_updates
 )
 
 urlpatterns = [
     # SSE Streams
-    path('stream_posts/', stream_posts, name='stream_posts'),
-    path('stream_deletions/', stream_deletions, name='stream_deletions'),
+    path('stream_updates/', stream_updates, name='stream_updates'),
     # Tableau de bord étudiant
     path('dashboard/', dashboard, name='dashboard'),
     # Liste des publications

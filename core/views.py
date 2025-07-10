@@ -12,8 +12,8 @@ from .models import Publication, Commentaire, Reponse, Communique, PublicationIm
 from django.views.decorators.http import require_GET, require_POST
 from django.http import JsonResponse
 from django.contrib.auth import get_user_model
-from django.db.models import Count, Q
-from django.views.decorators.csrf import csrf_exempt
+from django.db.models import Count, Q, Prefetch
+from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from django.utils import timezone
 
 # ==========================
@@ -53,28 +53,45 @@ def dashboard(request):
             for pdf_file in pdfs:
                 from .models import PublicationPDF
                 PublicationPDF.objects.create(publication=publication, pdf=pdf_file)
+
+            # Notify SSE stream
+            html_content = render_to_string('core/partials/publication_card.html', {'pub': publication, 'user': request.user})
+            notify_event('new_publication', {'id': publication.id, 'html': html_content})
+
             if is_htmx:
                 return render(request, 'core/partials/publication_card.html', {'pub': publication, 'user': request.user})
             return HttpResponseRedirect(reverse('dashboard'))
     else:
         form = PublicationForm()
-    # Publications de l'utilisateur
+    # Publications de l'utilisateur avec préchargement optimisé
     tag_query = request.GET.get('tags', '').strip()
-    publications = Publication.objects.filter(auteur=request.user)
+    
+    # Base queryset
+    publications_qs = Publication.objects.filter(auteur=request.user)
+    
+    # Filtrage par tags si nécessaire
     if tag_query:
         tag_list = [t.strip().lower() for t in tag_query.split(',') if t.strip()]
         if tag_list:
             q = Q()
             for tag in tag_list:
                 q |= Q(tags__icontains=tag)
-            publications = publications.filter(q)
-    else:
-        publications = Publication.objects.filter(auteur=request.user)
+            publications_qs = publications_qs.filter(q)
+
+    # Préchargement optimisé des commentaires et des réponses
+    publications = publications_qs.prefetch_related(
+        Prefetch('commentaires', queryset=Commentaire.objects.filter(is_deleted=False).order_by('date_commentaire').prefetch_related(
+            Prefetch('reponses', queryset=Reponse.objects.filter(is_deleted=False).order_by('date_reponse'))
+        ))
+    )
+
     commentaire_form = CommentaireForm()
     for pub in publications:
         pub.commentaire_form = commentaire_form
         pub.commentaire_action_url = reverse('add_commentaire', args=[pub.pk])
-        # Access property once and store as attribute for template use
+        # Le template utilise `prefetched_commentaires`, donc nous assignons les commentaires déjà chargés
+        pub.prefetched_commentaires = pub.commentaires.all()
+        # La propriété `has_mixed_file_types` est aussi utilisée
         if callable(pub.has_mixed_file_types):
             pub.has_mixed_file_types = pub.has_mixed_file_types()
     # Statistiques utilisateur
@@ -134,10 +151,7 @@ def delete_publication(request, pk):
     pub.save()
 
     # Notify the deletion stream
-    deleted_ids = cache.get('deleted_publication_ids', [])
-    if pub.id not in deleted_ids:
-        deleted_ids.append(pub.id)
-    cache.set('deleted_publication_ids', deleted_ids, timeout=60)
+    notify_event('delete_publication', {'id': pub.id})
 
     return HttpResponse(status=204)
 
@@ -158,6 +172,15 @@ def add_commentaire(request, pub_id):
         if form.cleaned_data.get('pdf'):
             commentaire.pdf = form.cleaned_data['pdf']
         commentaire.save()
+
+        # Notify SSE stream
+        html_content = render_to_string('core/partials/commentaire_item.html', {'commentaire': commentaire, 'user': request.user})
+        notify_event('new_comment', {
+            'id': commentaire.id, 
+            'publication_id': commentaire.publication_id, 
+            'html': html_content
+        })
+
         # Rendu du commentaire seul pour insertion dynamique
         return render(request, 'core/partials/commentaire_item.html', {'commentaire': commentaire, 'user': request.user})
     # Rendu du formulaire avec erreurs
@@ -177,10 +200,7 @@ def delete_commentaire(request, pk):
     commentaire.save()
 
     # Notify the deletion stream
-    deleted_ids = cache.get('deleted_comment_ids', [])
-    if commentaire.id not in deleted_ids:
-        deleted_ids.append(commentaire.id)
-    cache.set('deleted_comment_ids', deleted_ids, timeout=60)
+    notify_event('delete_comment', {'id': commentaire.id, 'publication_id': commentaire.publication_id})
 
     return HttpResponse(status=204)
 
@@ -210,6 +230,15 @@ def add_reponse(request, commentaire_id):
         if form.cleaned_data.get('pdf'): reponse.pdf = form.cleaned_data['pdf']
         reponse.save()
 
+        # Notify SSE stream
+        html_content = render_to_string('core/partials/reponse_item.html', {'reponse': reponse, 'user': request.user})
+        notify_event('new_reply', {
+            'id': reponse.id, 
+            'comment_id': reponse.commentaire_id, 
+            'parent_id': reponse.parent_id, 
+            'html': html_content
+        })
+
         # Si c'est une réponse imbriquée, ne renvoyer que l'item.
         # Sinon, renvoyer le wrapper complet.
         if is_nested_reply:
@@ -221,7 +250,6 @@ def add_reponse(request, commentaire_id):
 
 @login_required
 @require_POST
-@csrf_exempt
 def edit_publication(request, pk):
     pub = Publication.objects.get(pk=pk)
     if pub.auteur != request.user:
@@ -289,20 +317,34 @@ def bloc_statistiques(request):
     })
 
 def publications_list(request):
+    from django.db.models import Prefetch
     # Recherche par tags (GET)
     tag_query = request.GET.get('tags', '').strip()
-    publications = Publication.objects.all().order_by('-date_pub')
+    
+    # Base queryset
+    publications_qs = Publication.objects.filter(is_deleted=False).order_by('-date_pub')
+
+    # Filtrage par tags si nécessaire
     if tag_query:
         tag_list = [t.strip().lower() for t in tag_query.split(',') if t.strip()]
         if tag_list:
             q = Q()
             for tag in tag_list:
                 q |= Q(tags__icontains=tag)
-            publications = publications.filter(q)
+            publications_qs = publications_qs.filter(q)
+
+    # Préchargement optimisé des commentaires et des réponses
+    publications = publications_qs.prefetch_related(
+        Prefetch('commentaires', queryset=Commentaire.objects.filter(is_deleted=False).order_by('date_commentaire').prefetch_related(
+            Prefetch('reponses', queryset=Reponse.objects.filter(is_deleted=False).order_by('date_reponse'))
+        ))
+    )
+
     commentaire_form = CommentaireForm()
     for pub in publications:
         pub.commentaire_form = commentaire_form
         pub.commentaire_action_url = reverse('add_commentaire', args=[pub.pk])
+        # Le template utilise `prefetched_commentaires`, donc nous assignons les commentaires déjà chargés
         pub.prefetched_commentaires = pub.commentaires.all()
 
     # Si la requête est une requête HTMX, ne retourner que le partial (évite la duplication)
@@ -327,78 +369,42 @@ def delete_reponse(request, pk):
     reponse.save()
 
     # Notify the deletion stream
-    deleted_ids = cache.get('deleted_reply_ids', [])
-    if reponse.id not in deleted_ids:
-        deleted_ids.append(reponse.id)
-    cache.set('deleted_reply_ids', deleted_ids, timeout=60)
+    notify_event('delete_reply', {'id': reponse.id})
 
     return HttpResponse(status=204)
 
-def stream_posts(request):
+# ==========================
+# SSE : Unified real-time updates for all users (no user filtering)
+# ==========================
+update_events = []
+
+@ensure_csrf_cookie
+def stream_updates(request):
+    """
+    SSE stream for all real-time updates (comments, replies, deletions, etc.).
+    Sends ALL events to ALL clients, no user filtering.
+    """
     def event_stream():
-        last_pub_id = 0
-        last_comment_id = 0
-        last_reply_id = 0
-        
+        last_processed_event_time = timezone.now()
         while True:
-            # Publications
-            new_pubs = Publication.objects.filter(id__gt=last_pub_id, is_deleted=False).order_by('id')
-            if new_pubs:
-                last_pub_id = new_pubs.last().id
-                for pub in new_pubs:
-                    html_content = render_to_string('core/partials/publication_card.html', {'pub': pub, 'user': request.user})
-                    data = {'type': 'publication', 'id': pub.id, 'html': html_content}
-                    yield f"data: {json.dumps(data)}\n\n"
-
-            # Commentaires
-            new_comments = Commentaire.objects.filter(id__gt=last_comment_id, is_deleted=False).order_by('id')
-            if new_comments:
-                last_comment_id = new_comments.last().id
-                for comment in new_comments:
-                    html_content = render_to_string('core/partials/commentaire_item.html', {'commentaire': comment, 'user': request.user})
-                    data = {'type': 'comment', 'id': comment.id, 'publication_id': comment.publication_id, 'html': html_content}
-                    yield f"data: {json.dumps(data)}\n\n"
-
-            # Réponses
-            new_replies = Reponse.objects.filter(id__gt=last_reply_id, is_deleted=False).order_by('id')
-            if new_replies:
-                last_reply_id = new_replies.last().id
-                for reply in new_replies:
-                    html_content = render_to_string('core/partials/reponse_item.html', {'reponse': reply, 'user': request.user})
-                    data = {'type': 'reply', 'id': reply.id, 'comment_id': reply.commentaire_id, 'parent_id': reply.parent_id, 'html': html_content}
-                    yield f"data: {json.dumps(data)}\n\n"
-
-            time.sleep(2)
-            
+            events_to_send = [e for e in update_events if e['timestamp'] > last_processed_event_time]
+            for event in events_to_send:
+                yield f"event: {event['name']}\n"
+                yield f"data: {json.dumps(event['data'])}\n\n"
+            if events_to_send:
+                last_processed_event_time = max(e['timestamp'] for e in events_to_send)
+            time.sleep(1.5)
+            # Clean up old events
+            cutoff = timezone.now() - timezone.timedelta(seconds=30)
+            update_events[:] = [e for e in update_events if e['timestamp'] > cutoff]
     return StreamingHttpResponse(event_stream(), content_type='text/event-stream')
 
-def stream_deletions(request):
-    def event_stream():
-        while True:
-            # Check for deleted publications
-            deleted_pub_ids = cache.get('deleted_publication_ids', [])
-            if deleted_pub_ids:
-                for pub_id in deleted_pub_ids:
-                    data = {'type': 'publication', 'id': pub_id}
-                    yield f"data: {json.dumps(data)}\n\n"
-                cache.set('deleted_publication_ids', [], timeout=60)
-
-            # Check for deleted comments
-            deleted_comment_ids = cache.get('deleted_comment_ids', [])
-            if deleted_comment_ids:
-                for comment_id in deleted_comment_ids:
-                    data = {'type': 'comment', 'id': comment_id}
-                    yield f"data: {json.dumps(data)}\n\n"
-                cache.set('deleted_comment_ids', [], timeout=60)
-
-            # Check for deleted replies
-            deleted_reply_ids = cache.get('deleted_reply_ids', [])
-            if deleted_reply_ids:
-                for reply_id in deleted_reply_ids:
-                    data = {'type': 'reply', 'id': reply_id}
-                    yield f"data: {json.dumps(data)}\n\n"
-                cache.set('deleted_reply_ids', [], timeout=60)
-
-            time.sleep(2)
-            
-    return StreamingHttpResponse(event_stream(), content_type='text/event-stream')
+def notify_event(event_name, data):
+    """
+    Adds an event to the file-level cache for SSE streaming.
+    """
+    update_events.append({
+        'timestamp': timezone.now(),
+        'name': event_name,
+        'data': data
+    })

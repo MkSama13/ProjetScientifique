@@ -1,0 +1,126 @@
+<script>
+// Script pour la configuration du jeton CSRF avec HTMX
+document.body.addEventListener('htmx:configRequest', (event) => {
+    event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
+});
+
+// Dynamique : si le champ de recherche par tag est vidé, recharge dynamiquement toutes les publications via HTMX sans recharger la page
+const tagInput = document.getElementById('navbar-tags-search');
+if (tagInput) {
+    tagInput.addEventListener('input', function() {
+        if (this.value === '') {
+            if (window.htmx) {
+                htmx.ajax('GET', window.location.pathname, {target: '#publications-list', swap: 'innerHTML'});
+            }
+        }
+    });
+}
+
+// ==================================================
+// SSE pour les mises à jour en temps réel (unifié)
+// ==================================================
+const sseSource = new EventSource("{% url 'stream_updates' %}");
+
+// --- Gestion des créations ---
+sseSource.addEventListener('new_publication', (e) => {
+    const data = JSON.parse(e.data);
+    const publicationsList = document.getElementById("publications-list");
+    const pubId = `pub-${data.id}`;
+    if (publicationsList && !document.getElementById(pubId)) {
+        publicationsList.insertAdjacentHTML('afterbegin', data.html);
+        const newPubElement = document.getElementById(pubId);
+        if (newPubElement) {
+            newPubElement.classList.add('new-publication-flash');
+            setTimeout(() => newPubElement.classList.remove('new-publication-flash'), 1500);
+        }
+    }
+});
+
+sseSource.addEventListener('new_comment', (e) => {
+    const data = JSON.parse(e.data);
+    const commentsList = document.getElementById(`comments-list-${data.publication_id}`);
+    const commentId = `comment-${data.id}`;
+    if (commentsList && !document.getElementById(commentId)) {
+        commentsList.insertAdjacentHTML('afterbegin', data.html);
+        // Met à jour le compteur
+        const countSpan = document.getElementById(`comment-count-${data.publication_id}`);
+        if(countSpan) countSpan.textContent = parseInt(countSpan.textContent) + 1;
+    }
+});
+
+sseSource.addEventListener('new_reply', (e) => {
+    const data = JSON.parse(e.data);
+    const replyId = `reponse-${data.id}`;
+    if (document.getElementById(replyId)) return; // Évite les doublons
+    // Détermine le conteneur parent
+    const containerId = data.parent_id ? `reponses-list-reponse-${data.parent_id}` : `reponses-list-${data.comment_id}`;
+    let replyContainer = document.getElementById(containerId);
+    // Si le conteneur de réponses n'existe pas, on le crée
+    if (!replyContainer) {
+        const commentWrapper = document.getElementById(`comment-${data.comment_id}`);
+        if(commentWrapper) {
+            const reponsesWrapperId = `reponses-wrapper-${data.comment_id}`;
+            let reponsesWrapper = document.getElementById(reponsesWrapperId);
+            if (!reponsesWrapper) {
+                reponsesWrapper = document.createElement('div');
+                reponsesWrapper.id = reponsesWrapperId;
+                reponsesWrapper.className = 'ml-8 mt-2 border-l-2 border-gray-700 pl-4';
+                reponsesWrapper.innerHTML = `<div id="${containerId}" class="space-y-2"></div>`;
+                // Vérifie la présence de .comment-content, sinon insère à la fin
+                const commentContent = commentWrapper.querySelector('.comment-content');
+                if (commentContent) {
+                    commentContent.insertAdjacentElement('afterend', reponsesWrapper);
+                } else {
+                    commentWrapper.appendChild(reponsesWrapper);
+                }
+            }
+            replyContainer = reponsesWrapper.querySelector('#' + containerId);
+        }
+    }
+    if (replyContainer) {
+        replyContainer.insertAdjacentHTML('beforeend', data.html);
+    }
+});
+
+// --- Gestion des suppressions ---
+const fadeOutAndRemove = (element) => {
+    if (!element) return;
+    element.style.transition = 'opacity 0.5s, transform 0.5s, margin-bottom 0.5s';
+    element.style.opacity = '0';
+    element.style.transform = 'scale(0.95)';
+    element.style.marginBottom = `-${element.offsetHeight}px`;
+    setTimeout(() => element.remove(), 500);
+};
+
+sseSource.addEventListener('delete_publication', (e) => {
+    const data = JSON.parse(e.data);
+    const element = document.getElementById(`pub-${data.id}`);
+    fadeOutAndRemove(element);
+});
+
+sseSource.addEventListener('delete_comment', (e) => {
+    const data = JSON.parse(e.data);
+    const element = document.getElementById(`comment-${data.id}`);
+    fadeOutAndRemove(element);
+    // Mettre à jour le compteur
+    const countSpan = document.getElementById(`comment-count-${data.publication_id}`);
+    if(countSpan) {
+        const currentCount = parseInt(countSpan.textContent);
+        if (currentCount > 0) {
+            countSpan.textContent = currentCount - 1;
+        }
+    }
+});
+
+sseSource.addEventListener('delete_reply', (e) => {
+    const data = JSON.parse(e.data);
+    const element = document.getElementById(`reponse-${data.id}`);
+    fadeOutAndRemove(element);
+});
+
+// --- Gestion des erreurs ---
+sseSource.onerror = (err) => {
+    console.error("SSE connection failed:", err);
+    sseSource.close();
+};
+</script>

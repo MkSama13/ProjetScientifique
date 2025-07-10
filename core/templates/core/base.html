@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <title>{% block title %}Accueil{% endblock %}</title>
+    <meta name="csrf-token" content="{{ csrf_token }}"> {# Ajoutez cette ligne pour HTMX #}
     <!-- Chargement de la bibliothèque CSS DaisyUI -->
     <link href="https://cdn.jsdelivr.net/npm/daisyui@2.51.5/dist/full.css" rel="stylesheet" type="text/css" />
     <!-- Chargement de Tailwind CSS -->
@@ -69,15 +70,14 @@
 </footer>
 <!-- Script pour confirmation de suppression et effet fade-out -->
 <script>
+    // Configure HTMX pour inclure le token CSRF dans les en-têtes
     document.body.addEventListener('htmx:configRequest', function(evt) {
-        var elt = evt.target;
-        // Confirmation pour les formulaires de suppression
-        if (elt.matches('form[data-confirm]')) {
-            if (!confirm(elt.getAttribute('data-confirm'))) {
-                evt.preventDefault();
-            }
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        if (evt.detail.verb === 'post' || evt.detail.verb === 'put' || evt.detail.verb === 'delete' || evt.detail.verb === 'patch') {
+            evt.detail.headers['X-CSRFToken'] = csrfToken;
         }
     });
+
     // Fade out sur suppression d'une publication ou d'un commentaire
     document.body.addEventListener('htmx:beforeSwap', function(evt) {
         if (evt.detail.xhr && evt.detail.xhr.status === 204 && (evt.target.classList.contains('publication-card') || evt.target.classList.contains('commentaire-item'))) {

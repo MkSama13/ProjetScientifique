@@ -281,4 +281,5 @@ function updateImportCount(type) {
     document.getElementById('imported-files-info').innerHTML = infos.length ? infos.map(i => `<span>${i}</span>`).join('') : '';
 }
 </script>
+{% include 'core/partials/sse_script.html' %}
 {% endblock %}

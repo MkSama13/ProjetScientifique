@@ -54,7 +54,8 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',  # Sécurité
     'django.contrib.sessions.middleware.SessionMiddleware',  # Sessions
     'django.middleware.common.CommonMiddleware',  # Middleware commun
-    'django.middleware.csrf.CsrfViewMiddleware',  # Protection CSRF
+    # 'django.middleware.csrf.CsrfViewMiddleware',  # Protection CSRF
+    'config.middleware.CustomCsrfExemptMiddleware', # Middleware CSRF personnalisé
     'allauth.account.middleware.AccountMiddleware',  # Middleware allauth
     'django.contrib.auth.middleware.AuthenticationMiddleware',  # Authentification
     'django.contrib.messages.middleware.MessageMiddleware',  # Messages

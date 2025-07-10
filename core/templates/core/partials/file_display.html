@@ -1,0 +1,30 @@
+{% load static %}
+
+{% if files %}
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2 mb-2 w-full">
+        {% for file in files %}
+            <div class="flex flex-col items-center justify-center bg-blue-900/30 rounded-2xl p-0 w-full h-full aspect-video overflow-hidden">
+                {% if file.type == 'image' %}
+                    <img src="{{ file.url }}" alt="Image publication" class="object-cover w-full h-full rounded-2xl" style="aspect-ratio:16/9;" />
+                {% elif file.type == 'video' %}
+                    <div class="flex flex-col items-center justify-center w-full h-full p-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-blue-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M4 6h11a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2z" />
+                        </svg>
+                    </div>
+                {% elif file.type == 'pdf' %}
+                    <div class="flex flex-col items-center justify-center w-full h-full p-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-red-500 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7V3a1 1 0 011-1h8a1 1 0 011 1v18a1 1 0 01-1 1H8a1 0 01-1-1v-4" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7l5 5 5-5" />
+                        </svg>
+                    </div>
+                {% endif %}
+                <div class="flex flex-col items-center justify-center w-full p-2 bg-[#101624]/80 rounded-b-2xl">
+                    <span class="text-blue-100 font-bold text-base text-center truncate w-full mb-1" title="{{ file.name }}">{{ file.name|slice:"-80:" }}</span>
+                    <a href="{{ file.url }}" download class="block bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-1 rounded-lg shadow transition text-center mt-1" style="min-width: 100px;">Télécharger</a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}

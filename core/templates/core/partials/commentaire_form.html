@@ -1,5 +1,5 @@
 {% load static %}
-<form method="post" hx-post="{{ action_url }}" hx-target="#comments-list-{{ pub.pk }}" hx-swap="afterbegin" enctype="multipart/form-data" hx-on::after-swap="this.reset(); clearFilePreview(this);" class="flex items-start space-x-3 w-full file-upload-form">
+<form method="post" action="{{ action_url }}" hx-post="{{ action_url }}" hx-target="#comments-list-{{ pub.pk }}" hx-swap="afterbegin" enctype="multipart/form-data" hx-on::after-swap="this.reset(); clearFilePreview(this);" class="flex items-start space-x-3 w-full file-upload-form">
     <!-- Avatar -->
     <div class="flex-shrink-0">
         <div class="rounded-full bg-gray-600 w-10 h-10 flex items-center justify-center text-white font-bold border-2 border-gray-700">
