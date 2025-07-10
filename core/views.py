@@ -130,16 +130,15 @@ def delete_publication(request, pk):
     if pub.auteur_id != request.user.id:
         return JsonResponse({'success': False, 'error': 'Non autorisé'}, status=403)
     
-    pub_id = pub.id
-    pub.delete()
+    pub.is_deleted = True
+    pub.save()
 
-    # Ajouter l'ID de la publication supprimée à une liste dans le cache
+    # Notify the deletion stream
     deleted_ids = cache.get('deleted_publication_ids', [])
-    if pub_id not in deleted_ids:
-        deleted_ids.append(pub_id)
-    cache.set('deleted_publication_ids', deleted_ids, timeout=60) # Garder la liste pendant 60s
+    if pub.id not in deleted_ids:
+        deleted_ids.append(pub.id)
+    cache.set('deleted_publication_ids', deleted_ids, timeout=60)
 
-    # Retourner une réponse vide pour HTMX (pas de JSON, pas de texte)
     return HttpResponse(status=204)
 
 @login_required
@@ -173,8 +172,16 @@ def delete_commentaire(request, pk):
         return JsonResponse({'success': False, 'error': 'Commentaire introuvable'}, status=404)
     if commentaire.auteur != request.user:
         return JsonResponse({'success': False, 'error': 'Non autorisé'}, status=403)
-    commentaire.delete()
-    # Retourne une réponse vide (204) pour HTMX, comme pour les publications
+    
+    commentaire.is_deleted = True
+    commentaire.save()
+
+    # Notify the deletion stream
+    deleted_ids = cache.get('deleted_comment_ids', [])
+    if commentaire.id not in deleted_ids:
+        deleted_ids.append(commentaire.id)
+    cache.set('deleted_comment_ids', deleted_ids, timeout=60)
+
     return HttpResponse(status=204)
 
 @login_required
@@ -315,38 +322,83 @@ def delete_reponse(request, pk):
         return JsonResponse({'success': False, 'error': 'Réponse introuvable'}, status=404)
     if reponse.auteur != request.user:
         return JsonResponse({'success': False, 'error': 'Non autorisé'}, status=403)
-    reponse.delete()
-    # Retourne une réponse vide (204) pour HTMX
+
+    reponse.is_deleted = True
+    reponse.save()
+
+    # Notify the deletion stream
+    deleted_ids = cache.get('deleted_reply_ids', [])
+    if reponse.id not in deleted_ids:
+        deleted_ids.append(reponse.id)
+    cache.set('deleted_reply_ids', deleted_ids, timeout=60)
+
     return HttpResponse(status=204)
 
-def stream_publications(request):
+def stream_posts(request):
     def event_stream():
-        last_id = 0
+        last_pub_id = 0
+        last_comment_id = 0
+        last_reply_id = 0
         
         while True:
-            # 1. Vérifier les nouvelles publications
-            new_pubs = Publication.objects.filter(id__gt=last_id).order_by('id')
+            # Publications
+            new_pubs = Publication.objects.filter(id__gt=last_pub_id, is_deleted=False).order_by('id')
             if new_pubs:
-                last_id = new_pubs.last().id
+                last_pub_id = new_pubs.last().id
                 for pub in new_pubs:
-                    html_content = render_to_string(
-                        'core/partials/publication_card.html',
-                        {'pub': pub, 'user': request.user}
-                    )
-                    data = {'id': pub.id, 'html': html_content}
-                    # Envoi d'un événement "message" par défaut pour l'ajout
+                    html_content = render_to_string('core/partials/publication_card.html', {'pub': pub, 'user': request.user})
+                    data = {'type': 'publication', 'id': pub.id, 'html': html_content}
                     yield f"data: {json.dumps(data)}\n\n"
 
-            # 2. Vérifier les publications supprimées depuis le cache
-            deleted_ids = cache.get('deleted_publication_ids', [])
-            if deleted_ids:
-                for pub_id in deleted_ids:
-                    # Envoi d'un événement nommé "publication_deleted"
-                    yield f"event: publication_deleted\ndata: {json.dumps({'id': pub_id})}\n\n"
-                # Vider la liste du cache une fois les IDs envoyés
+            # Commentaires
+            new_comments = Commentaire.objects.filter(id__gt=last_comment_id, is_deleted=False).order_by('id')
+            if new_comments:
+                last_comment_id = new_comments.last().id
+                for comment in new_comments:
+                    html_content = render_to_string('core/partials/commentaire_item.html', {'commentaire': comment, 'user': request.user})
+                    data = {'type': 'comment', 'id': comment.id, 'publication_id': comment.publication_id, 'html': html_content}
+                    yield f"data: {json.dumps(data)}\n\n"
+
+            # Réponses
+            new_replies = Reponse.objects.filter(id__gt=last_reply_id, is_deleted=False).order_by('id')
+            if new_replies:
+                last_reply_id = new_replies.last().id
+                for reply in new_replies:
+                    html_content = render_to_string('core/partials/reponse_item.html', {'reponse': reply, 'user': request.user})
+                    data = {'type': 'reply', 'id': reply.id, 'comment_id': reply.commentaire_id, 'parent_id': reply.parent_id, 'html': html_content}
+                    yield f"data: {json.dumps(data)}\n\n"
+
+            time.sleep(2)
+            
+    return StreamingHttpResponse(event_stream(), content_type='text/event-stream')
+
+def stream_deletions(request):
+    def event_stream():
+        while True:
+            # Check for deleted publications
+            deleted_pub_ids = cache.get('deleted_publication_ids', [])
+            if deleted_pub_ids:
+                for pub_id in deleted_pub_ids:
+                    data = {'type': 'publication', 'id': pub_id}
+                    yield f"data: {json.dumps(data)}\n\n"
                 cache.set('deleted_publication_ids', [], timeout=60)
 
-            # Attendre avant la prochaine vérification
-            time.sleep(3)
+            # Check for deleted comments
+            deleted_comment_ids = cache.get('deleted_comment_ids', [])
+            if deleted_comment_ids:
+                for comment_id in deleted_comment_ids:
+                    data = {'type': 'comment', 'id': comment_id}
+                    yield f"data: {json.dumps(data)}\n\n"
+                cache.set('deleted_comment_ids', [], timeout=60)
+
+            # Check for deleted replies
+            deleted_reply_ids = cache.get('deleted_reply_ids', [])
+            if deleted_reply_ids:
+                for reply_id in deleted_reply_ids:
+                    data = {'type': 'reply', 'id': reply_id}
+                    yield f"data: {json.dumps(data)}\n\n"
+                cache.set('deleted_reply_ids', [], timeout=60)
+
+            time.sleep(2)
             
     return StreamingHttpResponse(event_stream(), content_type='text/event-stream')

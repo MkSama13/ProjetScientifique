@@ -30,6 +30,7 @@ class Publication(models.Model):
     promotion = models.CharField(max_length=50, blank=True)
     tags = models.CharField(max_length=200, blank=True, help_text="Tags séparés par des virgules")
     date_pub = models.DateTimeField(auto_now_add=True)
+    is_deleted = models.BooleanField(default=False)
 
     class Meta:
         ordering = ['-date_pub']
@@ -67,6 +68,7 @@ class Commentaire(models.Model):
     auteur = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     contenu = models.TextField(max_length=500)
     date_commentaire = models.DateTimeField(auto_now_add=True)
+    is_deleted = models.BooleanField(default=False)
     image = models.ImageField(upload_to='commentaires/images/', blank=True, null=True)
     video = models.FileField(upload_to='commentaires/videos/', blank=True, null=True)
     pdf = models.FileField(upload_to='commentaires/pdfs/', blank=True, null=True)
@@ -86,6 +88,7 @@ class Reponse(models.Model):
     contenu = models.TextField(max_length=300)
     date_reponse = models.DateTimeField(auto_now_add=True)
     parent = models.ForeignKey('self', null=True, blank=True, on_delete=models.CASCADE, related_name='reponses')
+    is_deleted = models.BooleanField(default=False)
     image = models.ImageField(upload_to='reponses/images/', blank=True, null=True)
     video = models.FileField(upload_to='reponses/videos/', blank=True, null=True)
     pdf = models.FileField(upload_to='reponses/pdfs/', blank=True, null=True)

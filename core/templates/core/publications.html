@@ -171,90 +171,78 @@ if (tagInput) {
 }
 
 // SSE pour les mises à jour en temps réel
-const eventSource = new EventSource("{% url 'stream_publications' %}");
+const postSource = new EventSource("{% url 'stream_posts' %}");
 
-// Gère l'ajout de nouvelles publications
-eventSource.addEventListener('new_publication', (e) => {
+postSource.onmessage = (e) => {
     const data = JSON.parse(e.data);
-    const publicationsList = document.getElementById("publications-list");
-    const pubId = `pub-${data.id}`;
-    if (!document.getElementById(pubId)) {
-        publicationsList.insertAdjacentHTML('afterbegin', data.html);
-        const newPubElement = document.getElementById(pubId);
-        if (newPubElement) {
-            newPubElement.classList.add('new-publication-flash');
-            setTimeout(() => newPubElement.classList.remove('new-publication-flash'), 1500);
+    
+    if (data.type === 'publication') {
+        const publicationsList = document.getElementById("publications-list");
+        const pubId = `pub-${data.id}`;
+        if (!document.getElementById(pubId)) {
+            publicationsList.insertAdjacentHTML('afterbegin', data.html);
+            const newPubElement = document.getElementById(pubId);
+            if (newPubElement) {
+                newPubElement.classList.add('new-publication-flash');
+                setTimeout(() => newPubElement.classList.remove('new-publication-flash'), 1500);
+            }
+        }
+    } else if (data.type === 'comment') {
+        const commentsList = document.getElementById(`comments-list-${data.publication_id}`);
+        const commentId = `comment-${data.id}`;
+        if (commentsList && !document.getElementById(commentId)) {
+            commentsList.insertAdjacentHTML('beforeend', data.html);
+            const countSpan = document.getElementById(`comment-count-${data.publication_id}`);
+            if(countSpan) countSpan.textContent = parseInt(countSpan.textContent) + 1;
+        }
+    } else if (data.type === 'reply') {
+        const containerId = data.parent_id ? `reponses-list-reponse-${data.parent_id}` : `reponses-wrapper-${data.comment_id}`;
+        const replyContainer = document.getElementById(containerId);
+        const replyId = `reponse-${data.id}`;
+
+        if (replyContainer && !document.getElementById(replyId)) {
+            if (data.parent_id) {
+                 replyContainer.insertAdjacentHTML('beforeend', data.html);
+            } else {
+                const reponsesList = replyContainer.querySelector("[id^='reponses-list-']");
+                if(reponsesList) reponsesList.insertAdjacentHTML('beforeend', data.html);
+            }
         }
     }
-});
+};
 
-// Gère l'ajout de nouveaux commentaires
-eventSource.addEventListener('new_comment', (e) => {
+postSource.onerror = (err) => {
+    console.error("Post EventSource failed:", err);
+    postSource.close();
+};
+
+const deletionSource = new EventSource("{% url 'stream_deletions' %}");
+
+deletionSource.onmessage = (e) => {
     const data = JSON.parse(e.data);
-    const commentsList = document.getElementById(`comments-list-${data.pub_id}`);
-    const commentId = `comment-${data.id}`;
-    if (commentsList && !document.getElementById(commentId)) {
-        commentsList.insertAdjacentHTML('afterbegin', data.html);
-        // Mettre à jour le compteur
-        const countSpan = document.getElementById(`comment-count-${data.pub_id}`);
-        if(countSpan) countSpan.textContent = parseInt(countSpan.textContent) + 1;
-    }
-});
-
-// Gère l'ajout de nouvelles réponses
-eventSource.addEventListener('new_reply', (e) => {
-    const data = JSON.parse(e.data);
-    const parentId = data.parent_id;
-    const containerId = parentId ? `reponses-list-reponse-${parentId}` : `reponses-wrapper-${data.comment_id}`;
-    const replyContainer = document.getElementById(containerId);
-    const replyId = `reponse-${data.id}`;
-
-    if (replyContainer && !document.getElementById(replyId)) {
-        if (parentId) {
-             replyContainer.insertAdjacentHTML('beforeend', data.html);
-        } else {
-            // Pour les réponses de premier niveau, on cible la liste à l'intérieur du wrapper
-            const reponsesList = replyContainer.querySelector("[id^='reponses-list-']");
-            if(reponsesList) reponsesList.insertAdjacentHTML('beforeend', data.html);
+    let element;
+    if (data.type === 'publication') {
+        element = document.getElementById(`pub-${data.id}`);
+        if (element) {
+            element.classList.add('publication-fade-out');
+            setTimeout(() => element.remove(), 500);
         }
+    } else if (data.type === 'comment') {
+        element = document.getElementById(`comment-${data.id}`);
+    } else if (data.type === 'reply') {
+        element = document.getElementById(`reponse-${data.id}`);
     }
-});
-
-// Gère la suppression de publications
-eventSource.addEventListener('publication_deleted', (e) => {
-    const data = JSON.parse(e.data);
-    const pubElement = document.getElementById(`pub-${data.id}`);
-    if (pubElement) {
-        pubElement.classList.add('publication-fade-out');
-        setTimeout(() => pubElement.remove(), 500);
+    
+    if (element && data.type !== 'publication') {
+        element.style.transition = 'opacity 0.5s';
+        element.style.opacity = '0';
+        setTimeout(() => element.remove(), 500);
     }
-});
+};
 
-// Gère la suppression de commentaires
-eventSource.addEventListener('comment_deleted', (e) => {
-    const data = JSON.parse(e.data);
-    const commentElement = document.getElementById(`comment-${data.id}`);
-    if (commentElement) {
-        commentElement.style.transition = 'opacity 0.5s';
-        commentElement.style.opacity = '0';
-        setTimeout(() => commentElement.remove(), 500);
-    }
-});
-
-// Gère la suppression de réponses
-eventSource.addEventListener('reply_deleted', (e) => {
-    const data = JSON.parse(e.data);
-    const replyElement = document.getElementById(`reponse-${data.id}`);
-    if (replyElement) {
-        replyElement.style.transition = 'opacity 0.5s';
-        replyElement.style.opacity = '0';
-        setTimeout(() => replyElement.remove(), 500);
-    }
-});
-
-eventSource.onerror = (err) => {
-    console.error("EventSource failed:", err);
-    eventSource.close();
+deletionSource.onerror = (err) => {
+    console.error("Deletion EventSource failed:", err);
+    deletionSource.close();
 };
 </script>
 {% endblock %}
