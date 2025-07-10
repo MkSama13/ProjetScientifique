@@ -153,6 +153,11 @@
     }
 </style>
 <script>
+// Script pour la configuration du jeton CSRF avec HTMX
+document.body.addEventListener('htmx:configRequest', (event) => {
+    event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
+});
+
 // Dynamique : si le champ de recherche par tag est vidé, recharge dynamiquement toutes les publications via HTMX sans recharger la page
 const tagInput = document.getElementById('navbar-tags-search');
 if (tagInput) {
@@ -169,41 +174,81 @@ if (tagInput) {
 const eventSource = new EventSource("{% url 'stream_publications' %}");
 
 // Gère l'ajout de nouvelles publications
-eventSource.onmessage = (e) => {
+eventSource.addEventListener('new_publication', (e) => {
     const data = JSON.parse(e.data);
     const publicationsList = document.getElementById("publications-list");
     const pubId = `pub-${data.id}`;
-
-    // On vérifie si la publication n'est pas déjà affichée
     if (!document.getElementById(pubId)) {
-        // La publication n'existe pas, on insère le HTML reçu au début de la liste
         publicationsList.insertAdjacentHTML('afterbegin', data.html);
-        
-        // On ajoute une classe pour l'animation et on la retire après
         const newPubElement = document.getElementById(pubId);
         if (newPubElement) {
             newPubElement.classList.add('new-publication-flash');
-            setTimeout(() => {
-                newPubElement.classList.remove('new-publication-flash');
-            }, 1500); // Durée de l'animation
+            setTimeout(() => newPubElement.classList.remove('new-publication-flash'), 1500);
         }
     }
-};
+});
+
+// Gère l'ajout de nouveaux commentaires
+eventSource.addEventListener('new_comment', (e) => {
+    const data = JSON.parse(e.data);
+    const commentsList = document.getElementById(`comments-list-${data.pub_id}`);
+    const commentId = `comment-${data.id}`;
+    if (commentsList && !document.getElementById(commentId)) {
+        commentsList.insertAdjacentHTML('afterbegin', data.html);
+        // Mettre à jour le compteur
+        const countSpan = document.getElementById(`comment-count-${data.pub_id}`);
+        if(countSpan) countSpan.textContent = parseInt(countSpan.textContent) + 1;
+    }
+});
+
+// Gère l'ajout de nouvelles réponses
+eventSource.addEventListener('new_reply', (e) => {
+    const data = JSON.parse(e.data);
+    const parentId = data.parent_id;
+    const containerId = parentId ? `reponses-list-reponse-${parentId}` : `reponses-wrapper-${data.comment_id}`;
+    const replyContainer = document.getElementById(containerId);
+    const replyId = `reponse-${data.id}`;
+
+    if (replyContainer && !document.getElementById(replyId)) {
+        if (parentId) {
+             replyContainer.insertAdjacentHTML('beforeend', data.html);
+        } else {
+            // Pour les réponses de premier niveau, on cible la liste à l'intérieur du wrapper
+            const reponsesList = replyContainer.querySelector("[id^='reponses-list-']");
+            if(reponsesList) reponsesList.insertAdjacentHTML('beforeend', data.html);
+        }
+    }
+});
 
 // Gère la suppression de publications
 eventSource.addEventListener('publication_deleted', (e) => {
     const data = JSON.parse(e.data);
-    const pubId = `pub-${data.id}`;
-    const pubElement = document.getElementById(pubId);
-
+    const pubElement = document.getElementById(`pub-${data.id}`);
     if (pubElement) {
-        // Appliquer l'animation de disparition
         pubElement.classList.add('publication-fade-out');
+        setTimeout(() => pubElement.remove(), 500);
+    }
+});
 
-        // Supprimer l'élément du DOM après l'animation
-        setTimeout(() => {
-            pubElement.remove();
-        }, 500); // Doit correspondre à la durée de l'animation CSS
+// Gère la suppression de commentaires
+eventSource.addEventListener('comment_deleted', (e) => {
+    const data = JSON.parse(e.data);
+    const commentElement = document.getElementById(`comment-${data.id}`);
+    if (commentElement) {
+        commentElement.style.transition = 'opacity 0.5s';
+        commentElement.style.opacity = '0';
+        setTimeout(() => commentElement.remove(), 500);
+    }
+});
+
+// Gère la suppression de réponses
+eventSource.addEventListener('reply_deleted', (e) => {
+    const data = JSON.parse(e.data);
+    const replyElement = document.getElementById(`reponse-${data.id}`);
+    if (replyElement) {
+        replyElement.style.transition = 'opacity 0.5s';
+        replyElement.style.opacity = '0';
+        setTimeout(() => replyElement.remove(), 500);
     }
 });
 
@@ -211,6 +256,5 @@ eventSource.onerror = (err) => {
     console.error("EventSource failed:", err);
     eventSource.close();
 };
-
 </script>
 {% endblock %}
