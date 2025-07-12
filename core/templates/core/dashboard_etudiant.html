@@ -282,4 +282,27 @@ function updateImportCount(type) {
 }
 </script>
 {% include 'core/partials/sse_script.html' %}
+
+<!-- Inclusion du script Unpoly via CDN -->
+<script src="https://unpkg.com/unpoly@2.6.0/dist/unpoly.min.js"></script>
+<link href="https://unpkg.com/unpoly@2.6.0/dist/unpoly.min.css" rel="stylesheet"/>
+
+<script>
+// Fonction pour recharger la section commentaire via Unpoly polling toutes les 5 secondes
+function startCommentPolling() {
+    setInterval(() => {
+        document.querySelectorAll('[id^="comment-section-"]').forEach(section => {
+            const pubId = section.id.replace('comment-section-', '');
+            const commentsList = document.getElementById('comments-list-' + pubId);
+            if (commentsList) {
+                up.reload(commentsList, {url: window.location.href, method: 'GET'});
+            }
+        });
+    }, 5000);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    startCommentPolling();
+});
+</script>
 {% endblock %}

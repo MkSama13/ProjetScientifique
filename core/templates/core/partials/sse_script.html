@@ -21,6 +21,8 @@ if (tagInput) {
 // ==================================================
 const sseSource = new EventSource("{% url 'stream_updates' %}");
 
+/* Désactivation de la gestion SSE des commentaires et réponses pour passer au polling AJAX via Unpoly */
+
 // --- Gestion des créations ---
 sseSource.addEventListener('new_publication', (e) => {
     const data = JSON.parse(e.data);
@@ -36,6 +38,7 @@ sseSource.addEventListener('new_publication', (e) => {
     }
 });
 
+/* Commenté : suppression de la gestion SSE des commentaires et réponses
 sseSource.addEventListener('new_comment', (e) => {
     const data = JSON.parse(e.data);
     const commentsList = document.getElementById(`comments-list-${data.publication_id}`);
@@ -81,6 +84,7 @@ sseSource.addEventListener('new_reply', (e) => {
         replyContainer.insertAdjacentHTML('beforeend', data.html);
     }
 });
+*/
 
 // --- Gestion des suppressions ---
 const fadeOutAndRemove = (element) => {
@@ -98,6 +102,7 @@ sseSource.addEventListener('delete_publication', (e) => {
     fadeOutAndRemove(element);
 });
 
+/* Commenté : suppression de la gestion SSE des commentaires et réponses
 sseSource.addEventListener('delete_comment', (e) => {
     const data = JSON.parse(e.data);
     const element = document.getElementById(`comment-${data.id}`);
@@ -117,6 +122,7 @@ sseSource.addEventListener('delete_reply', (e) => {
     const element = document.getElementById(`reponse-${data.id}`);
     fadeOutAndRemove(element);
 });
+*/
 
 // --- Gestion des erreurs ---
 sseSource.onerror = (err) => {
